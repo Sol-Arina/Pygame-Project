@@ -1,0 +1,100 @@
+{"frames": {
+
+"Basic_Furniture.png":
+{
+	"frame": {"x":112,"y":112,"w":144,"h":96},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":144,"h":96},
+	"sourceSize": {"w":144,"h":96}
+},
+"Basic_Grass_Biom_things.png":
+{
+	"frame": {"x":0,"y":208,"w":144,"h":80},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":144,"h":80},
+	"sourceSize": {"w":144,"h":80}
+},
+"Basic_Plants.png":
+{
+	"frame": {"x":160,"y":64,"w":96,"h":32},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":96,"h":32},
+	"sourceSize": {"w":96,"h":32}
+},
+"Doors.png":
+{
+	"frame": {"x":0,"y":0,"w":16,"h":64},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":16,"h":64},
+	"sourceSize": {"w":16,"h":64}
+},
+"Fences.png":
+{
+	"frame": {"x":64,"y":0,"w":64,"h":64},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":64,"h":64},
+	"sourceSize": {"w":64,"h":64}
+},
+"Free_Chicken_House.png":
+{
+	"frame": {"x":16,"y":0,"w":48,"h":48},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":48,"h":48},
+	"sourceSize": {"w":48,"h":48}
+},
+"Paths.png":
+{
+	"frame": {"x":128,"y":0,"w":64,"h":64},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":64,"h":64},
+	"sourceSize": {"w":64,"h":64}
+},
+"Tilled_Dirt.png":
+{
+	"frame": {"x":0,"y":288,"w":176,"h":112},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":176,"h":112},
+	"sourceSize": {"w":176,"h":112}
+},
+"Wood_Bridge.png":
+{
+	"frame": {"x":0,"y":64,"w":80,"h":48},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":80,"h":48},
+	"sourceSize": {"w":80,"h":48}
+},
+"Wooden_House_Roof_Tilset.png":
+{
+	"frame": {"x":0,"y":112,"w":112,"h":80},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":112,"h":80},
+	"sourceSize": {"w":112,"h":80}
+},
+"Wooden_House_Walls_Tilset.png":
+{
+	"frame": {"x":80,"y":64,"w":80,"h":48},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":80,"h":48},
+	"sourceSize": {"w":80,"h":48}
+}},
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "2ndlayer.png",
+	"format": "RGBA8888",
+	"size": {"w":256,"h":400},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:fdb64d39b20069c62608f19a16ded9e8:3d28c9e3bf0354683089606dafde77cb:bc58cfcb60ef6ed22f6ea7293855144d$"
+}
+}
