@@ -4,6 +4,7 @@ import json
 import pygame
 from tiles import *
 from spritesheet import Spritesheet # type: ignore
+from animals import Animal, load_animal_frames
 # sys.dont_write_bytecode = True
 # from lib.core import Core
 
@@ -33,8 +34,24 @@ tile_map = TileMap(TILE_SIZE, 'ground_tiles_environment.csv', 'ground_tiles_over
 tile_map.add_tiles_from_image('environmentsprites.png', starting_index=0)
 
 # загрузка тайлов для второго слоя, здесь деревья без урожая, цветы, камни, забор, дорожки, домик, грибы
-tile_map.add_overlay_tiles_from_image('2ndlayer.png', starting_index=0) 
+tile_map.add_overlay_tiles_from_image('2ndlayer.png', starting_index=0)
 
+
+"""        ЖИВОТНЫЕ        """
+# загрузка спрайтов животных
+cow_spritesheet = Spritesheet('cowspritesheet.png')
+chicken_spritesheet = Spritesheet('chickenspritesheet.png')
+
+# загрузка фреймов для анимации животных
+animal_frames = load_animal_frames('animal_frames.json')
+
+# создание животных
+animals_group = pygame.sprite.Group()
+
+cow = Animal(300, 300, cow_spritesheet, animal_frames['cow'])
+chicken = Animal(500, 500, chicken_spritesheet, animal_frames['chicken'])
+
+animals_group.add(cow, chicken)
 
 ##################################################################################
 
@@ -42,6 +59,7 @@ tile_map.add_overlay_tiles_from_image('2ndlayer.png', starting_index=0)
 # GAME LOOP
 running = True
 while running:
+    dt = clock.tick(60)  # дельта времени для кадров
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -54,6 +72,10 @@ while running:
 
     # отрисовка карты с основным и вторым слоями
     tile_map.draw_map(screen)
+
+    # отрисовка животных
+    animals_group.update(dt)
+    animals_group.draw(screen)
 
     # обновление экрана
     pygame.display.flip()
