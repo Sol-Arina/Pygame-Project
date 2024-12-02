@@ -1,0 +1,14 @@
+{
+    "cow": {
+      "up": ["cow_up_1", "cow_up_2"],
+      "down": ["cow_down_1", "cow_down_2"],
+      "left": ["cow_left_1", "cow_left_2"],
+      "right": ["cow_right_1", "cow_right_2"]
+    },
+    "chicken": {
+      "up": ["chicken_up_1", "chicken_up_2"],
+      "down": ["chicken_down_1", "chicken_down_2"],
+      "left": ["chicken_left_1", "chicken_left_2"],
+      "right": ["chicken_right_1", "chicken_right_2"]
+    }
+  }
