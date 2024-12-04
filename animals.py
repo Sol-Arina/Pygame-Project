@@ -15,6 +15,7 @@ class Animal(pygame.sprite.Sprite):
         self.image = self.spritesheet.parse_sprite(self.frames[self.direction][self.current_frame])
         self.rect = self.image.get_rect(center=(x, y))
         self.pos = pygame.Vector2(x, y)
+        self.home_pos = pygame.Vector2(x, y)  # Исходная позиция животного
         self.radius = radius
         self.speed = speed
         self.elapsed_time = 0
@@ -31,22 +32,27 @@ class Animal(pygame.sprite.Sprite):
             self.image = self.spritesheet.parse_sprite(self.frames[self.direction][self.current_frame])
     
     def move(self):
-        """случайное движение в пределах радиуса"""
+        """Случайное движение в пределах радиуса от исходной позиции."""
         now = pygame.time.get_ticks()
         if now - self.last_move_time >= self.movement_time:
             self.last_move_time = now
             angle = random.uniform(0, 2 * 3.14)
-            offset = pygame.Vector2(self.radius, 0).rotate_rad(angle) # ...
-            self.pos += offset
+            offset = pygame.Vector2(self.radius, 0).rotate_rad(angle)
+            new_pos = self.home_pos + offset
 
-            # определяем направление
+            # Проверка на выход за границы экрана или слишком далекое движение
+            screen_width, screen_height = 800, 600  # Размер экрана
+            if 0 <= new_pos.x <= screen_width and 0 <= new_pos.y <= screen_height:
+                self.pos = new_pos
+
+            # Определяем направление движения
             dx, dy = offset.x, offset.y
             if abs(dx) > abs(dy):
                 self.direction = 'right' if dx > 0 else 'left'
             else:
                 self.direction = 'down' if dy > 0 else 'up'
-        
-        # обновление позиции
+
+        # Обновление позиции прямоугольника
         self.rect.center = self.pos
     
     def update(self, dt):
