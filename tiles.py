@@ -13,11 +13,30 @@ class TileMap:
         # загружаем основную карту
         self.map_data = self.load_map(map_file)
         
+        self.farmable_tiles = {504} # ЗДЕСЬ МОЖНО САЖАТЬ
+        self.water = {9}  # вода= нельзя идти
+
+         # непроходимые тайлы - заборы, постройки, деревья
+        self.secondlayer_collision = {1, 2, 3, 17, 18, 19, 33, 34, 35, 4, 5, 6, 7, 20, 21, 22, 23, 36, 37, 38, 39, 52, 53, 54 , 55, 69, 70, 71, 85, 87, 101, 102, 103, 104, 156, 124, 136, 152, 231, 232, 208, 224, 209, 210, 225, 226} 
+
         # если указан файл для второго слоя, загружаем его
         if overlay_map_file:
             self.overlay_map_data = self.load_map(overlay_map_file)
         else:
             self.overlay_map_data = None  # если нет второго слоя, оставляем None ПОТОМ МОЖНО СЮДА ДОБАВИТЬ ЕЩЁ СЛОЁВ
+
+    def isitwater(self, x, y):
+        '''checking if a tile is water первый слой'''
+        return self.map_data[y][x] in self.water        
+
+    def canifarmhere(self, x, y):
+        '''проверка, грядка или нет'''
+        return self.map_data[y][x] in self.farmable_tiles
+
+    def isitcollidable(self, x, y):
+        '''проверяет тайлы второго слоя на проходимость'''
+        return self.overlay_map_data[y][x] in self.secondlayer_collision
+
 
     def load_tile_set(self, filename, tile_width, tile_height):
         '''функция для загрузки изображения с несколькими тайлами'''
