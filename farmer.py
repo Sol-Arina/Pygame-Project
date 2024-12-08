@@ -1,6 +1,10 @@
 import pygame
 import random
 import json
+from sound import FarmerSound, BaseSound
+
+
+
 
 
 
@@ -13,10 +17,11 @@ class Farmer:
 
     WALK_ANIMATION = [0, 1, 2, 3]  # Индексы кадров для анимации ходьбы
 
-    def __init__(self, screen):
+    def __init__(self, screen, tilemap):
         self.screen = screen
+        self.tilemap = tilemap
         self.spritesheet = pygame.image.load("farmer.png").convert_alpha()
-        self.pos_x, self.pos_y = 100, 100
+        self.pos_x, self.pos_y = 560, 360
         self.direction = self.DOWN
         self.animation_index = 0
         self.frame_counter = 0
@@ -26,6 +31,16 @@ class Farmer:
         self.font = pygame.font.Font(None, 36)
         self.menu = []
         self.next_frame()
+        self.voice = FarmerSound()
+
+        # Флаг для звука шагов
+        self.playing_step_sound = False
+
+        # Время для одного шага
+        self.step_duration = 200  # длительность одного шага в миллисекундах (например 200 мс)
+
+        # Время начала проигрывания звука
+        self.step_sound_start_time = None
 
     def next_frame(self):
         row = self.direction
@@ -45,27 +60,59 @@ class Farmer:
             self.next_frame()
 
     def move(self, direction):
-        self.direction = direction
+        """Двигает фермера в заданном направлении, если тайл проходим."""
+
+        # Сохраняем текущую позицию для проверки
+        new_x, new_y = self.pos_x, self.pos_y
         if direction == self.DOWN:
-            self.pos_y += self.speed
+            new_y += self.speed
         elif direction == self.UP:
-            self.pos_y -= self.speed
+            new_y -= self.speed
         elif direction == self.LEFT:
-            self.pos_x -= self.speed
+            new_x -= self.speed
         elif direction == self.RIGHT:
-            self.pos_x += self.speed
-        self.screen_rect.topleft = (self.pos_x, self.pos_y)
+            new_x += self.speed
+
+        # Определяем тайловые координаты
+        tile_x = new_x // self.tilemap.tile_size
+        tile_y = new_y // self.tilemap.tile_size
+
+        if 0 <= tile_x < len(self.tilemap.map_data[0]) and 0 <= tile_y < len(self.tilemap.map_data):
+            # Проверяем, является ли тайл проходимым
+            if not self.tilemap.isitwater(tile_x, tile_y) and not self.tilemap.isitcollidable(tile_x, tile_y):
+                # Если тайл проходим, обновляем позицию
+                self.pos_x, self.pos_y = new_x, new_y
+                self.screen_rect.topleft = (self.pos_x, self.pos_y)  # Обновляем экранный прямоугольник
+                
+                # Если звук шагов не проигрывается, воспроизводим его
+                if not self.playing_step_sound:
+                    self.voice.play('steps')  # Проигрываем звук шагов
+                    self.playing_step_sound = True  # Устанавливаем флаг
+                    self.step_sound_start_time = pygame.time.get_ticks()  # Записываем время начала звука
+
+            else:
+                # Если не можем сделать шаг, играем звук "no"
+                if self.playing_step_sound:
+                    self.voice.play('no')  # Проигрываем звук "no"
+                    self.playing_step_sound = False  # Сбрасываем флаг
+
+        else:
+            # Если выходим за пределы карты
+            if not self.playing_step_sound:
+                self.voice.play('no')  # Проигрываем звук "no"
+                self.playing_step_sound = True  # Устанавливаем флаг
 
     def draw(self):
         self.screen.blit(self.spritesheet, self.screen_rect, self.frame_rect)
 
-    # Отрисовка текста, если есть взаимодействие
-        if self.interaction_text:
-            text_surface = self.font.render(self.interaction_text, True, (255, 255, 255))
-            self.screen.blit(text_surface, (self.pos_x, self.pos_y - 20))  # Надпись над фермером
-
     def update(self):
         self.update_animation()
+
+        # Проверяем, если звук шагов проигрывается слишком долго, останавливаем его
+        if self.playing_step_sound and self.step_sound_start_time:
+            if pygame.time.get_ticks() - self.step_sound_start_time >= self.step_duration:
+                self.voice.stop('steps')  # Останавливаем звук шагов после истечения времени шага
+                self.playing_step_sound = False
 
     def handle_input(self):
         """Обрабатывает ввод с клавиатуры."""
@@ -80,16 +127,19 @@ class Farmer:
             self.move(Farmer.DOWN)
 
     def check_interaction(self, animals_group, plants_group=None):
-       """Проверяет взаимодействие с животными или растениями."""       
-       if plants_group:
-           for plant in plants_group: 
-               if self.screen_rect.colliderect(plant.rect):
-                   return "plant", plant  # Возвращаем тип объекта и сам объект
-       for animal in animals_group:
-           if self.screen_rect.colliderect(animal.rect):
-               return "animal", animal  # Возвращаем тип объекта и сам объект
-       return None, None  # Если взаимодействия нет
+        """Проверяет взаимодействие с животными или растениями."""
+        if plants_group:
+            for plant in plants_group: 
+                if self.screen_rect.colliderect(plant.rect):
+                    return "plant", plant  # Возвращаем тип объекта и сам объект
+        for animal in animals_group:
+            if self.screen_rect.colliderect(animal.rect):
+                return "animal", animal  # Возвращаем тип объекта и сам объект
+        return None, None  # Если взаимодействия нет
 
+    def update_volume(self):
+        """Обновляет громкость звуков фермера согласно глобальной громкости."""
+        self.voice.update_volume()
 
 
 
@@ -134,3 +184,5 @@ class InteractionMenu:
                 self.visible = False  # Закрываем меню
 
         return None
+    
+    
