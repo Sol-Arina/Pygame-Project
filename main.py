@@ -6,12 +6,15 @@ from tiles import *
 from spritesheet import Spritesheet # type: ignore
 from animals import Animal, load_animal_frames
 from farmer import Farmer, InteractionMenu
+from sound import BackgroundSound, BaseSound, AnimalSound, FarmerSound
 # sys.dont_write_bytecode = True
 # from lib.core import Core
 
 
 # инициализация pygame
+pygame.mixer.pre_init(44100, -16, 1, 512) 
 pygame.init()
+
 
 # настройка экрана
 SCREEN_WIDTH = 1120 # 16 умножить на 70 
@@ -49,14 +52,14 @@ animal_frames = load_animal_frames('animal_frames.json')
 # создание животных
 animals_group = pygame.sprite.Group() #нужно будет создать plants_group, чтобы появлялось меню взаимодействия с растениями
 
-cow = Animal(300, 300, cow_spritesheet, animal_frames['cow'])
-chicken = Animal(500, 500, chicken_spritesheet, animal_frames['chicken'])
+cow = Animal(300, 300, cow_spritesheet, animal_frames['cow'], 'cow')
+chicken = Animal(500, 500, chicken_spritesheet, animal_frames['chicken'], 'chicken')
 
 animals_group.add(cow, chicken)
 
 
 '''ОГОРОДНИК'''
-farmer = Farmer(screen)
+farmer = Farmer(screen, tile_map)
 ##################################################################################
 
 '''МЕНЮ ВЗАИМОДЕЙСТВИЯ С ОБЪЕКТАМИ'''
@@ -65,59 +68,63 @@ animal_menu_options = ["Покормить", "Назад"]
 plant_menu_options = ["Полить", "Собрать урожай", "Назад"]
 
 
+'''Фоновая музыка'''
+bs = BackgroundSound('music.mp3') #сюда можно ввести название любого звукового файла, который хотим поставить на фон
+bs.play()
+
 # GAME LOOP
 running = True
 while running:
     dt = clock.tick(60)  # Ограничиваем FPS до 60
+    
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-    
-    if menu.visible:
+        
+       # Регулировка громкости
+    BaseSound.adjust_volume(event)
+
+    # Обновляем громкость у всех звуков через их владельцев
+    bs.update_volume()
+    farmer.update_volume()  # Обновление громкости фермера
+    for animal in animals_group:
+        animal.update_volume()  # Обновление громкости животных
+
+        # Обработка меню
+        if menu.visible:
             action = menu.handle_input(event)
             if action:
-                print(f"Выбрано действие: {action}")
                 if action == "Назад":
-                    menu.visible = False  # Закрываем меню
+                    menu.visible = False
                 elif action == "Покормить":
                     print("Животное покормлено!")
                 elif action == "Полить":
                     print("Растение полито!")
-
-    # Проверяем взаимодействие с объектами
-    interaction_type, target_object = farmer.check_interaction(animals_group) #потом сюда же нужно будет передать plants_group
-
-    if interaction_type == "animal":
-        menu.visible = True
-        menu.options = animal_menu_options  # Показываем меню для животных
-    elif interaction_type == "plant":
-        menu.visible = True
-        menu.options = plant_menu_options  # Показываем меню для растений
-
-    # Обрабатываем ввод и обновляем фермера
-    farmer.handle_input()
+    
+    # Обновление фермера
+    if not menu.visible:  # Если меню не активно
+        farmer.handle_input()
     farmer.update()
+    
+    # Проверка взаимодействий
+    interaction_type, target_object = farmer.check_interaction(animals_group)
+    if interaction_type == "animal" and not menu.visible:
+        menu.visible = True
+        menu.options = animal_menu_options
+    elif interaction_type == "plant" and not menu.visible:
+        menu.visible = True
+        menu.options = plant_menu_options
 
-    # Обновление и отрисовка объектов
+    # Отрисовка объектов
     screen.fill(BACKGROUND_TEAL)
     tile_map.draw_map(screen)
-
-    # Рисуем фермера
-    farmer.update()
     farmer.draw()
-
-
     animals_group.update(dt)
     animals_group.draw(screen)
-
-    
-
-    farmer.check_interaction(animals_group)
-
     menu.draw()
 
+    
+    
     pygame.display.flip()
 
-
-# закрытие программы
 pygame.quit()

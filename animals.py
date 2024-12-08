@@ -1,12 +1,13 @@
 import pygame
 import random
 import json
+from sound import AnimalSound, BaseSound
 
 # группа для всех животных
 animals_group = pygame.sprite.Group()
 
 class Animal(pygame.sprite.Sprite):
-    def __init__(self, x, y, spritesheet, anim_frames, radius=50, speed=1):
+    def __init__(self, x, y, spritesheet, anim_frames, animal_type, radius=50, speed=1):
         super().__init__()
         self.spritesheet = spritesheet
         self.frames = anim_frames
@@ -22,7 +23,9 @@ class Animal(pygame.sprite.Sprite):
         self.frame_time = 200 # интервал между кадрами анимации
         self.movement_time = random.randint(1000, 3000)
         self.last_move_time = pygame.time.get_ticks()
-    
+        self.animal_type = animal_type  #для выбора звука: cow/chicken
+        self.voice = AnimalSound(self.animal_type)
+
     def animate(self, dt):
         """для обновления кадра анимации"""
         self.elapsed_time += dt
@@ -58,6 +61,12 @@ class Animal(pygame.sprite.Sprite):
     def update(self, dt):
         self.move()
         self.animate(dt)
+
+    def update_volume(self):
+        """Обновляет громкость звуков животного на основе глобальной громкости."""
+        self.voice.update_volume()
+
+
 
  
 def load_animal_frames(filename):
