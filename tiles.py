@@ -9,6 +9,7 @@ class TileMap:
         self.tile_size = tile_size  # 16 на 16 пикселей
         self.tile_images = {}  # cловарь для хранения тайлов основного слоя
         self.overlay_tile_images = {}  # cловарь для хранения тайлов второго слоя
+        self.animals_tile_images = {} # словарь для хранения тайлов животных
         
         # загружаем основную карту
         self.map_data = self.load_map(map_file)
@@ -62,6 +63,12 @@ class TileMap:
         tile_set = self.load_tile_set(filename, self.tile_size, self.tile_size)
         for i, tile in enumerate(tile_set):
             self.overlay_tile_images[starting_index + i] = tile
+
+    def add_animal_tiles_from_image(self, filename, starting_index=1):
+        '''добавление тайлов в словарь для животных'''
+        tile_set = self.load_tile_set(filename, self.tile_size, self.tile_size)
+        for i, tile in enumerate(tile_set):
+            self.animals_tile_images[starting_index + i] = tile
 
     def load_map(self, filename):
         '''функция для загрузки карты из CSV файла'''

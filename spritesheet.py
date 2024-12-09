@@ -18,7 +18,7 @@ class Spritesheet:
         sprite.set_colorkey((0,0,0))
         sprite.blit(self.sprite_sheet,(0, 0),(x, y, w, h))
         return sprite
-
+    
     def parse_sprite(self, name):
         '''разрезать спрайт'''
         sprite = self.data['frames'][name]['frame']

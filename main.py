@@ -42,19 +42,41 @@ tile_map.add_overlay_tiles_from_image('2ndlayer.png', starting_index=0)
 
 
 """        ЖИВОТНЫЕ        """
-# загрузка спрайтов животных
-cow_spritesheet = Spritesheet('cowspritesheet.png')
-chicken_spritesheet = Spritesheet('chickenspritesheet.png')
-
 # загрузка фреймов для анимации животных
-animal_frames = load_animal_frames('animal_frames.json')
+cow_frames_data = load_animal_frames('cow_sprite_sheet.json')
+chicken_frames_data = load_animal_frames('chicken_sprite_sheet.json')
+
+# загрузка спрайтов животных
+cow_spritesheet = Spritesheet('cow_sprite_sheet.png')
+chicken_spritesheet = Spritesheet('chicken_sprite_sheet.png')
+
+# создание группы для животных
+animals_group = pygame.sprite.Group()
+
+# список кадров для анимации коровы
+cow_frame_names = [
+    'cow_eye_closed.png',
+    'cow_static.png',
+    'cow_tail_up.png',
+    'cow_walking.png',
+    'cow_walking1.png'
+]
+
+# список кадров для анимации курицы
+chicken_frame_names = [
+    'chicken_eyes_closed.png',
+    'chicken_static.png',
+    'chicken_static1.png',
+    'chicken_walking.png',
+    'chicken_walking1.png',
+    'chicken_walking3.png'
+]
 
 # создание животных
-animals_group = pygame.sprite.Group() #нужно будет создать plants_group, чтобы появлялось меню взаимодействия с растениями
+cow = Animal(350, 200, 'cow', cow_spritesheet, cow_frames_data, cow_frame_names, (32, 32), tilemap=tile_map)
+chicken = Animal(800, 240, 'chicken', chicken_spritesheet, chicken_frames_data, chicken_frame_names, (16, 16), tilemap=tile_map)
 
-cow = Animal(300, 300, cow_spritesheet, animal_frames['cow'], 'cow')
-chicken = Animal(500, 500, chicken_spritesheet, animal_frames['chicken'], 'chicken')
-
+# добавление животных в группу
 animals_group.add(cow, chicken)
 
 
