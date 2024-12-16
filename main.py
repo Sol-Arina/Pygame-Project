@@ -2,11 +2,13 @@ import sys
 import time
 import json
 import pygame
+import pygame_menu
 from tiles import *
 from spritesheet import Spritesheet # type: ignore
 from animals import Animal, load_animal_frames
 from farmer import Farmer, InteractionMenu
 from sound import BackgroundSound, BaseSound, AnimalSound, FarmerSound
+from actionmenu import ActionMenu
 # sys.dont_write_bytecode = True
 # from lib.core import Core
 
@@ -40,8 +42,31 @@ tile_map.add_tiles_from_image('environmentsprites.png', starting_index=0)
 # загрузка тайлов для второго слоя, здесь деревья без урожая, цветы, камни, забор, дорожки, домик, грибы
 tile_map.add_overlay_tiles_from_image('2ndlayer.png', starting_index=0)
 
+# ACTION MENU
+# загрузка изображений и шрифта
+font_path = 'assets/fonts/pixelFont-7-8x14-sproutLands.ttf'
+item_images = {
+    'wheat': 'assets/action_menu/wheat.png',
+    'tomato': 'assets/action_menu/tomato.png',
+    'strawberrybush': 'assets/action_menu/strawberrybush.png',
+    'appletree': 'assets/action_menu/appletree.png',
+    'chicken': 'assets/action_menu/chicken.png',
+    'cow': 'assets/action_menu/cow.png',
+    'coin': 'assets/action_menu/coin.png',
+}
 
-"""        ЖИВОТНЫЕ        """
+background_image = pygame.image.load('assets/action_menu/background.png')
+
+# загрузка иконки для открытия меню
+menu_icon = pygame.image.load('assets/action_menu/menu_icon.png')  
+menu_icon_rect = menu_icon.get_rect()
+menu_icon_rect.topleft = (SCREEN_WIDTH - 60, 20)  # правый верхний угол
+
+action_menu = ActionMenu(screen, font_path, item_images)
+#menu_act = action_menu.create_menu() 
+
+
+#"""        ЖИВОТНЫЕ        """
 # загрузка фреймов для анимации животных
 cow_frames_data = load_animal_frames('cow_sprite_sheet.json')
 chicken_frames_data = load_animal_frames('chicken_sprite_sheet.json')
@@ -96,19 +121,33 @@ bs.play()
 
 # GAME LOOP
 running = True
+menu_open = False  # отслеживание, открыто ли меню
 while running:
     dt = clock.tick(60)  # Ограничиваем FPS до 60
+    events = pygame.event.get()
     
-    for event in pygame.event.get():
+    for event in events:
         if event.type == pygame.QUIT:
             running = False
-        
-       # Регулировка громкости
-    BaseSound.adjust_volume(event)
+        # ACTION меню условие
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            mouse_pos = pygame.mouse.get_pos()
+            if menu_icon_rect.collidepoint(mouse_pos):
+                menu_open = not menu_open
+                if menu_open:
+                    action_menu.switch_to_main()
+                else:
+                    action_menu.menu.disable()
+                    action_menu.shop_menu.disable()
+                    action_menu.inventory_menu.disable()
 
-    # Обновляем громкость у всех звуков через их владельцев
-    bs.update_volume()
-    farmer.update_volume()  # Обновление громкости фермера
+            # Регулировка громкости
+        BaseSound.adjust_volume(event)
+
+        # Обновляем громкость у всех звуков через их владельцев
+        bs.update_volume()
+        farmer.update_volume()  # Обновление громкости фермера
+
     for animal in animals_group:
         animal.update_volume()  # Обновление громкости животных
 
@@ -122,11 +161,11 @@ while running:
                     print("Животное покормлено!")
                 elif action == "Полить":
                     print("Растение полито!")
-    
+
     # Обновление фермера
     if not menu.visible:  # Если меню не активно
         farmer.handle_input()
-    farmer.update()
+        farmer.update()
     
     # Проверка взаимодействий
     interaction_type, target_object = farmer.check_interaction(animals_group)
@@ -138,14 +177,18 @@ while running:
         menu.options = plant_menu_options
 
     # Отрисовка объектов
-    screen.fill(BACKGROUND_TEAL)
-    tile_map.draw_map(screen)
-    farmer.draw()
-    animals_group.update(dt)
-    animals_group.draw(screen)
-    menu.draw()
-
-    
+    if menu_open:
+            if action_menu.current_menu and action_menu.current_menu.is_enabled():
+                action_menu.current_menu.update(events)
+                action_menu.current_menu.draw(screen)
+    else:
+        screen.fill(BACKGROUND_TEAL)
+        tile_map.draw_map(screen)
+        farmer.draw()
+        animals_group.update(dt)
+        animals_group.draw(screen)
+        menu.draw()
+        screen.blit(menu_icon, menu_icon_rect)
     
     pygame.display.flip()
 
