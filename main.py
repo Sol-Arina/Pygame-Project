@@ -5,7 +5,7 @@ import pygame
 import pygame_menu
 from tiles import *
 from spritesheet import Spritesheet # type: ignore
-from animals import Animal, load_animal_frames
+from animals import Animal, Cow, Chicken, load_animal_frames
 from farmer import Farmer, InteractionMenu
 from sound import BackgroundSound, BaseSound, AnimalSound, FarmerSound
 from actionmenu import ActionMenu
@@ -98,8 +98,8 @@ chicken_frame_names = [
 ]
 
 # создание животных
-cow = Animal(350, 200, 'cow', cow_spritesheet, cow_frames_data, cow_frame_names, (32, 32), tilemap=tile_map)
-chicken = Animal(800, 240, 'chicken', chicken_spritesheet, chicken_frames_data, chicken_frame_names, (16, 16), tilemap=tile_map)
+cow = Cow(350, 200, cow_spritesheet, cow_frames_data, cow_frame_names, (32, 32), tilemap=tile_map)
+chicken = Chicken(800, 240, chicken_spritesheet, chicken_frames_data, chicken_frame_names, (16, 16), tilemap=tile_map)
 
 # добавление животных в группу
 animals_group.add(cow, chicken)
