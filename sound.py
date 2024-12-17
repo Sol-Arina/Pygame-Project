@@ -54,25 +54,33 @@ class BackgroundSound(BaseSound):
 
 
 class AnimalSound(BaseSound):
-    def __init__(self, animal):
+    def __init__(self, animal, sound_files):
         """
-        :param animal: тип животного ('cow' или 'chicken')
+        :param animal: тип животного ('cow', 'chicken' и т.д.)
+        :param sound_files: словарь, где ключ — тип звука, значение — путь к файлу.
+        Пример:
+        {
+            'moo': 'moo.wav',
+            'hungry': 'cow_hungry.wav',
+            'fed': 'bell.wav',
+            'milk': 'milk.wav'
+        }
         """
         self.animal = animal
         self.sounds = {
-            'cow': pygame.mixer.Sound('moo.wav'),
-            'chicken': pygame.mixer.Sound('chickens.wav')
+            sound_type: pygame.mixer.Sound(file)
+            for sound_type, file in sound_files.items()
         }
         self.update_volume()
 
-    def play(self):
-        if self.animal in self.sounds:
-            self.sounds[self.animal].play()
+    def play(self, sound_type):
+        if sound_type in self.sounds:
+            self.sounds[sound_type].play()
 
     def update_volume(self):
-        """Обновляет громкость звуков фермера согласно глобальной громкости."""
+        """Обновляет громкость звуков животного в соответствии с глобальной громкостью."""
         for sound in self.sounds.values():
-            sound.set_volume(BaseSound.global_volume)  # Используем глобальную громкость из BaseSound
+            sound.set_volume(BaseSound.global_volume)
 
 
 class FarmerSound(BaseSound):
@@ -101,7 +109,3 @@ class FarmerSound(BaseSound):
         """Останавливает звук, если он еще играет."""
         if sound in self.sounds:
             self.sounds[sound].stop()
-
-
-                    
-
