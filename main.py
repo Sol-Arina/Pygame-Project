@@ -9,6 +9,8 @@ from animals import Animal, Cow, Chicken, load_animal_frames
 from farmer import Farmer, InteractionMenu
 from sound import BackgroundSound, BaseSound, AnimalSound, FarmerSound
 from actionmenu import ActionMenu
+from plants import Plant
+from plants import Inventory
 # sys.dont_write_bytecode = True
 # from lib.core import Core
 
@@ -104,6 +106,22 @@ chicken = Chicken(800, 240, chicken_spritesheet, chicken_frames_data, chicken_fr
 # добавление животных в группу
 animals_group.add(cow, chicken)
 
+# ------- РАСТЕНИЯ --------
+# создание группы для растений
+plants_group = pygame.sprite.Group()
+
+inventory = Inventory()
+pos = (21,23) # FOR TESTING PLANTS
+pos1 = (24, 23)
+pos2 = (26, 23)
+pos3 = (28, 23)
+# добавление растений в группу  
+wheat = Plant('Wheat', growth_stages=[pygame.image.load('assets/plant stages/wheat1.png'), pygame.image.load('assets/plant stages/wheat2.png'), pygame.image.load('assets/plant stages/wheat3.png'), pygame.image.load('assets/plant stages/wheat4.png')], tile_map=tile_map, screen=screen, inventory=inventory, pos=pos)
+tomato = Plant('Tomato', growth_stages=[pygame.image.load('assets/plant stages/tomato1.png'), pygame.image.load('assets/plant stages/tomato2.png'), pygame.image.load('assets/plant stages/tomato3.png'), pygame.image.load('assets/plant stages/tomato4.png')], tile_map=tile_map, screen=screen, inventory=inventory, pos=pos1)
+apple = Plant('Apple', growth_stages=[pygame.image.load('assets/plant stages/apple1.png'), pygame.image.load('assets/plant stages/apple2.png')], tile_map=tile_map, screen=screen, inventory=inventory, pos=pos2)
+strawberry = Plant ('Strawberry', growth_stages=[pygame.image.load('assets/plant stages/strawberry1.png'), pygame.image.load('assets/plant stages/strawberry2.png')], tile_map=tile_map, screen=screen, inventory=inventory, pos=pos3)
+plants_group.add(wheat, tomato, apple, strawberry) 
+
 
 '''ОГОРОДНИК'''
 farmer = Farmer(screen, tile_map)
@@ -140,6 +158,7 @@ while running:
                     action_menu.menu.disable()
                     action_menu.shop_menu.disable()
                     action_menu.inventory_menu.disable()
+      
 
             # Регулировка громкости
         BaseSound.adjust_volume(event)
@@ -168,7 +187,7 @@ while running:
         farmer.update()
     
     # Проверка взаимодействий
-    interaction_type, target_object = farmer.check_interaction(animals_group)
+    interaction_type, target_object = farmer.check_interaction(animals_group, plants_group)
     if interaction_type == "animal" and not menu.visible:
         menu.visible = True
         menu.options = animal_menu_options
@@ -187,6 +206,10 @@ while running:
         farmer.draw()
         animals_group.update(dt)
         animals_group.draw(screen)
+         # Обновляем и рисуем растения
+        for plant in plants_group:
+            plant.update()
+            plant.draw()
         menu.draw()
         screen.blit(menu_icon, menu_icon_rect)
     

@@ -185,7 +185,7 @@ class Chicken(Animal):
         super().__init__(x, y, 'chicken', spritesheet, frames_data, frame_names, frame_size, tilemap, radius, speed)
         # Звуки курицы
         self.voice = AnimalSound('chicken', {
-            'squeak': 'chickens.wav',
+            'squeak': 'hungry_chickens.wav',
             'hungry': 'hungry_chickens.wav',
         })
 
