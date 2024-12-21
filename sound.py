@@ -87,7 +87,8 @@ class FarmerSound(BaseSound):
     def __init__(self):
         self.sounds = {
             'steps': pygame.mixer.Sound('steps.wav'),
-            'no': pygame.mixer.Sound('no.mp3')
+            'no': pygame.mixer.Sound('no.mp3'), 
+            'okay': pygame.mixer.Sound('okay.mp3')
         }
         self.update_volume()
         self.step_duration = 200  # Длительность звука шагов в миллисекундах
