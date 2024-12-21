@@ -68,7 +68,7 @@ action_menu = ActionMenu(screen, font_path, item_images)
 #menu_act = action_menu.create_menu() 
 
 
-#"""        ЖИВОТНЫЕ        """
+"""        ЖИВОТНЫЕ        """
 # загрузка фреймов для анимации животных
 cow_frames_data = load_animal_frames('cow_sprite_sheet.json')
 chicken_frames_data = load_animal_frames('chicken_sprite_sheet.json')
@@ -129,7 +129,7 @@ farmer = Farmer(screen, tile_map)
 
 '''МЕНЮ ВЗАИМОДЕЙСТВИЯ С ОБЪЕКТАМИ'''
 menu = InteractionMenu(screen, []) #класс меню в farmer.py
-animal_menu_options = ["Покормить", "Назад"]
+animal_menu_options = ["Покормить", "Собрать продукты", "Назад"]
 plant_menu_options = ["Полить", "Собрать урожай", "Назад"]
 
 
@@ -167,6 +167,9 @@ while running:
         bs.update_volume()
         farmer.update_volume()  # Обновление громкости фермера
 
+    # Проверка взаимодействий
+    interaction_type, target_object = farmer.check_interaction(animals_group, plants_group)
+    
     for animal in animals_group:
         animal.update_volume()  # Обновление громкости животных
 
@@ -177,7 +180,11 @@ while running:
                 if action == "Назад":
                     menu.visible = False
                 elif action == "Покормить":
+                    target_object.feed()
                     print("Животное покормлено!")
+                    menu.visible = False
+                elif action == 'Собрать продукты':
+                    pass
                 elif action == "Полить":
                     print("Растение полито!")
 
@@ -186,8 +193,8 @@ while running:
         farmer.handle_input()
         farmer.update()
     
-    # Проверка взаимодействий
-    interaction_type, target_object = farmer.check_interaction(animals_group, plants_group)
+    # # Проверка взаимодействий
+    # interaction_type, target_object = farmer.check_interaction(animals_group, plants_group)
     if interaction_type == "animal" and not menu.visible:
         menu.visible = True
         menu.options = animal_menu_options
