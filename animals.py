@@ -41,9 +41,8 @@ class Animal(pygame.sprite.Sprite):
         self.movement_time = random.randint(1000, 3000)
         self.last_move_time = pygame.time.get_ticks()
 
-        self.hunger = 100
+        self.hunger = 0
         self.energy = 100
-        self.feed_count = 0  # Количество кормлений
         self.hunger_rate = 0.5 # скорость увеличения голода (в секунду?)
         self.energy_rate = 0.5 # скорость уменьшения энергии (в секунду?)
         self.last_status_update = pygame.time.get_ticks() # для обновления уровня голода и энергии
@@ -73,8 +72,11 @@ class Animal(pygame.sprite.Sprite):
         elapsed_time = (now - self.last_status_update) / 1000 # время последнего обновления в секундах
         self.last_status_update = now
 
-        self.hunger = max(self.hunger - self.hunger_rate * elapsed_time, 100)
-        self.energy = max(self.energy - self.energy_rate * elapsed_time, 100)
+        self.hunger = min(self.hunger + self.hunger_rate * elapsed_time, 100)
+        self.energy = max(self.energy - self.energy_rate * elapsed_time, 0)
+
+        # if self.hunger >= 65 or self.energy <= 30:
+        #     self.play.sound()
 
     
     def animate(self, dt):
@@ -110,13 +112,7 @@ class Animal(pygame.sprite.Sprite):
         self.rect.center = self.pos
     
     def feed(self):
-        if self.hunger < 100:
-            # self.feed_count += 1
-            self.hunger += 30
-            self.energy += 30
-            # if self.feed_count == 3:
-            #     print('------- Животное покормили 3 раза! -------')
-
+        pass
     
     def update(self, dt):
         self.update_status()
@@ -136,7 +132,7 @@ class Cow(Animal):
         })
 
         # Параметры для молока
-        # self.feed_count = 0  # Количество кормлений
+        self.feed_count = 0  # Количество кормлений
         self.milk_ready = False  # Доступность молока
         self.last_moo_time = pygame.time.get_ticks()  # Для контроля периодичности мычания
 
@@ -147,46 +143,37 @@ class Cow(Animal):
         now = pygame.time.get_ticks()
 
         # Мычание с периодичностью
-        if now - self.last_moo_time > random.randint(10000, 25000):  # в интервале от 10 до 25 секунд
+        if now - self.last_moo_time > 15000:  # 15 секунд
             self.voice.play('moo')
             self.last_moo_time = now
 
         # Проверка на голод или усталость
-        if self.hunger <= 65 or self.energy <= 30:
+        if self.hunger >= 65 or self.energy <= 30:
             if not self.voice.sounds['hungry'].get_num_channels():  # Звук голода не должен перекрываться
                 self.voice.play('hungry')
 
         # Проверяем, готово ли молоко
-        if self.feed_count >= 3 and self.energy >= 80:
-            self.milk_ready = True
-            self.energy -= 20
+        self.milk_ready = self.feed_count >= 3 and self.energy >= 70
 
     def feed(self):
+        """Кормление коровы."""
         super().feed()
-        # self.hunger += 30
-        # self.energy += 30
         self.feed_count += 1
         self.voice.play('fed')
 
-        """для отладки"""
-        print('--- Корову покормили! ---')
-        if self.feed_count == 3:
-            print('------- Корову покормили 3 раза! -------')
-
-        """для отладки"""
-        if self.milk_ready:
-            print("Молоко готово! Вы можете собрать молоко.")
+        # # Проверка на готовность молока
+        # if self.milk_ready:
+        #     print("Молоко готово! Вы можете собрать молоко.")
 
     def milk(self):
+        """Собираем молоко, если доступно."""
         if self.milk_ready:
             self.voice.play('milk')
-            self.feed_count = 0
+            self.feed_count = 0  # Сбрасываем счетчик кормлений
             self.milk_ready = False
-
-            """для отладки"""
-            print("Вы взяли молоко!")
-        else:
-            print("Молоко еще не готово.")
+        #     print("Вы взяли молоко!")
+        # else:
+        #     print("Молоко еще не готово.")
 
     def update_volume(self):
         """Обновляет громкость звуков животного на основе глобальной громкости."""
@@ -198,8 +185,8 @@ class Chicken(Animal):
         super().__init__(x, y, 'chicken', spritesheet, frames_data, frame_names, frame_size, tilemap, radius, speed)
         # Звуки курицы
         self.voice = AnimalSound('chicken', {
-            'squeak': 'hungry_chickens.wav',
-            'hungry': 'hungry_chickens.wav'
+            'squeak': 'chickens.wav',
+            'hungry': 'hungry_chickens.wav',
         })
 
         self.feed_count = 0
@@ -213,48 +200,36 @@ class Chicken(Animal):
         now = pygame.time.get_ticks()
 
         # писк цыпленка с периодичностью
-        if now - self.last_squeak_time > random.randint(10000, 25000):  # в интервале от 10 до 25 секунд
+        if now - self.last_squeak_time > 20000:  # 20 секунд
             self.voice.play('squeak')
             self.last_squeak_time = now
 
         # Проверка на голод или усталость
-        if self.hunger <= 65 or self.energy <= 30:
+        if self.hunger >= 65 or self.energy <= 30:
             if not self.voice.sounds['hungry'].get_num_channels():  # Звук голода не должен перекрываться
                 self.voice.play('hungry')
 
-        # Проверяем, есть ли яйцо
-        if self.feed_count >= 3 and self.energy >= 80:
-            self.egg_ready = True
-            self.energy -= 20
+        self.egg_ready = self.feed_count >= 3 and self.energy >= 70
 
     def feed(self):
         super().feed()
-        # self.hunger += 30
-        # self.energy += 30
-        # self.voice.play('fed')
         self.feed_count += 1
 
-        """для отладки"""
-        print('--- Курицу покормили! ---')
-        if self.feed_count == 3:
-            print('------- Курицу покормили 3 раза! -------')
-        if self.egg_ready:
-            print("Курица снесла яйцо! Можно его забрать")
+        # # Проверка на готовность молока
+        # if self.egg_ready:
+        #     print("Молоко готово! Вы можете собрать молоко.")
 
     def egg(self):
         if self.egg_ready:
-            self.feed_count = 0
+            self.feed_count = 0  # Сбрасываем счетчик кормлений
             self.egg_ready = False
-
-            """для отладки"""
-            print("Вы забрали яйцо!")
-        else:
-            print("Курица еще не снесла яйцо.")
+        #     print("Вы взяли молоко!")
+        # else:
+        #     print("Молоко еще не готово.")
 
     def update_volume(self):
         """Обновляет громкость звуков животного на основе глобальной громкости."""
         self.voice.update_volume()
-
 
 def load_animal_frames(filename):
     """
