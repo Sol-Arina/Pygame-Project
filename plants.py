@@ -29,15 +29,18 @@ class Inventory:
         else:
             self.harvest[crop] = quantity
 
-class Plant():
+class Plant(pygame.sprite.Sprite):
     '''Класс растений: пшеница, помидоры, яблоки, клубника.'''
-    def __init__(self, name, growth_stages, growth_time=60):
+    def __init__(self, name, growth_stages, growth_time=60, x=0, y=0):
+        super().__init__()
         self.name = name
         self.growth_stages = growth_stages
         self.current_stage = 0  # Текущая фаза роста
         self.growth_time = growth_time  # Время на фазу роста (в секундах)
         self.last_growth_time = time.time()  # Время последнего обновления фазы
         self.harvested = False  # Флаг, что растение дало плоды
+        self.image = self.growth_stages[self.current_stage]
+        self.rect = self.image.get_rect(topleft=(x, y))
 
     def grow(self):
         '''Обновление фазы роста.'''
@@ -45,7 +48,13 @@ class Plant():
             self.current_stage += 1
             if self.current_stage >= len(self.growth_stages):
                 self.harvested = True  # Растение дало плоды
+                self.current_stage = len(self.growth_stages) - 1
+            self.image = self.growth_stages[self.current_stage]
             self.last_growth_time = time.time()
+
+    def update(self):
+        self.grow()
+
 
     def get_image(self):
         '''Возвращаем изображение растения в зависимости от его текущей фазы.'''
@@ -53,11 +62,11 @@ class Plant():
 
 class Farm:
     '''Класс для управления посадкой ЕГО СОЕДИНИТЬ С КЛАССОМ РАСТЕНИЕ'''
-    def __init__(self, screen, tile_map, inventory, font_path):
+    def __init__(self, screen, tile_map, font_path):
         self.screen = screen
         self.tile_map = tile_map
         self.font = pygame.font.Font(font_path, 20)
-        self.inventory = inventory
+        self.inventory = Inventory()
         self.plants = {}  # Растения на грядке, с координатами тайлов в качестве ключей
         self.selected_tile = None
         self.selection_color = (144, 238, 144)  # Нежно-зелёный цвет для обводки
