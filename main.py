@@ -10,6 +10,7 @@ from farmer import Farmer, InteractionMenu, AnimalMenu, PlantMenu, PlantingMenu
 from sound import BackgroundSound, BaseSound, AnimalSound, FarmerSound
 from actionmenu import ActionMenu
 from plants import Plant
+
 # sys.dont_write_bytecode = True
 # from lib.core import Core
 
@@ -67,7 +68,7 @@ action_menu = ActionMenu(screen, font_path, item_images)
 #menu_act = action_menu.create_menu() 
 
 
-#"""        ЖИВОТНЫЕ        """
+"""        ЖИВОТНЫЕ        """
 # загрузка фреймов для анимации животных
 cow_frames_data = load_animal_frames('cow_sprite_sheet.json')
 chicken_frames_data = load_animal_frames('chicken_sprite_sheet.json')
@@ -105,14 +106,32 @@ chicken = Chicken(800, 240, chicken_spritesheet, chicken_frames_data, chicken_fr
 # добавление животных в группу
 animals_group.add(cow, chicken)
 
+# ------- РАСТЕНИЯ --------
+# создание группы для растений
+plants_group = pygame.sprite.Group()
+
+inventory = Inventory()
+pos = (21,23) # FOR TESTING PLANTS
+pos1 = (24, 23)
+pos2 = (26, 23)
+pos3 = (28, 23)
+# добавление растений в группу  
+wheat = Plant('Wheat', growth_stages=[pygame.image.load('assets/plant stages/wheat1.png'), pygame.image.load('assets/plant stages/wheat2.png'), pygame.image.load('assets/plant stages/wheat3.png'), pygame.image.load('assets/plant stages/wheat4.png')], tile_map=tile_map, screen=screen, inventory=inventory, pos=pos)
+tomato = Plant('Tomato', growth_stages=[pygame.image.load('assets/plant stages/tomato1.png'), pygame.image.load('assets/plant stages/tomato2.png'), pygame.image.load('assets/plant stages/tomato3.png'), pygame.image.load('assets/plant stages/tomato4.png')], tile_map=tile_map, screen=screen, inventory=inventory, pos=pos1)
+apple = Plant('Apple', growth_stages=[pygame.image.load('assets/plant stages/apple1.png'), pygame.image.load('assets/plant stages/apple2.png')], tile_map=tile_map, screen=screen, inventory=inventory, pos=pos2)
+strawberry = Plant ('Strawberry', growth_stages=[pygame.image.load('assets/plant stages/strawberry1.png'), pygame.image.load('assets/plant stages/strawberry2.png')], tile_map=tile_map, screen=screen, inventory=inventory, pos=pos3)
+plants_group.add(wheat, tomato, apple, strawberry) 
+
 
 '''ОГОРОДНИК'''
 farmer = Farmer(screen, tile_map)
 ##################################################################################
 
 '''МЕНЮ ВЗАИМОДЕЙСТВИЯ С ОБЪЕКТАМИ'''
-menu = InteractionMenu(screen) #класс меню в farmer.py
-animal_menu_options = ["Покормить", "Назад"]
+
+menu = InteractionMenu(screen, []) #класс меню в farmer.py
+animal_menu_options = ["Покормить", "Собрать продукты", "Назад"]
+
 plant_menu_options = ["Полить", "Собрать урожай", "Назад"]
 
 '''Растения тест'''
@@ -149,6 +168,8 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
+
+
         # Handle volume adjustments
         BaseSound.adjust_volume(event)
         bs.update_volume()
@@ -156,15 +177,18 @@ while running:
         for animal in animals_group:
             animal.update_volume()
 
+
         # Handle menus
         if animal_menu and animal_menu.visible:
             action = animal_menu.handle_input(event)
             if action:
                 animal_menu = None  
 
+
         if plant_menu and plant_menu.visible:
             action = plant_menu.handle_input(event)
             if action:
+
                 plant_menu = None
 
         if planting_menu and planting_menu.visible:
@@ -183,6 +207,7 @@ while running:
         if command == "open_planting_menu":
             planting_menu = PlantingMenu(screen, farmer)
             planting_menu.visible = True
+
     
 
     interaction_type, target_object = farmer.check_interaction(animals_group, plants_group)

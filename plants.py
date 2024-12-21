@@ -1,6 +1,7 @@
 import pygame
 import time
 from tiles import *
+from spritesheet import Spritesheet
 
 
 class Inventory:
@@ -29,6 +30,7 @@ class Inventory:
         else:
             self.harvest[crop] = quantity
 
+
 class Plant(pygame.sprite.Sprite):
     '''Класс растений: пшеница, помидоры, яблоки, клубника.'''
     def __init__(self, name, growth_stages, growth_time=60, x=0, y=0):
@@ -42,12 +44,14 @@ class Plant(pygame.sprite.Sprite):
         self.image = self.growth_stages[self.current_stage]
         self.rect = self.image.get_rect(topleft=(x, y))
 
+
     def grow(self):
-        '''Обновление фазы роста.'''
+        '''обновление фазы роста'''
         if time.time() - self.last_growth_time > self.growth_time:
             self.current_stage += 1
             if self.current_stage >= len(self.growth_stages):
                 self.harvested = True  # Растение дало плоды
+
                 self.current_stage = len(self.growth_stages) - 1
             self.image = self.growth_stages[self.current_stage]
             self.last_growth_time = time.time()
@@ -137,26 +141,33 @@ class Farm:
         self.inventory.remove_item(plant_name, 1)  # Уменьшаем количество семян
         self.plant_selection_window_open = False  # Закрываем окно выбора растения
 
+
     def update(self):
-        '''Обновление фермы и проверка роста растений.'''
-        for plant in self.plants.values():
-            plant.grow()
+        '''обновление состояния растения'''
+        self.grow()
 
-    def handle_drop_click(self, pos):
-        '''Обработка клика по дропу для сбора урожая.'''
+    def plant(self, pos, plant_name):
+        '''посадка растения с проверкой на грядку'''
         x, y = pos[0] // self.tile_map.tile_size, pos[1] // self.tile_map.tile_size
-        for drop in self.drops:
-            drop_pos = drop['pos']
-            if drop_pos[0] <= x * self.tile_map.tile_size <= drop_pos[0] + self.tile_map.tile_size and \
-               drop_pos[1] <= y * self.tile_map.tile_size <= drop_pos[1] + self.tile_map.tile_size:
-                plant_name = self.plants[(x, y)].name
-                self.inventory.add_harvest(plant_name.split()[0], 1)  # Добавляем в инвентарь урожай
-                self.drops.remove(drop)  # Удаляем дроп
-                del self.plants[(x, y)]  # Удаляем растение после сбора
-                print(f'Собрано: {plant_name}')
+        if self.tile_map.canifarmhere(x, y):  # проверяем, можно ли сажать
+            self.pos = (x, y)
+            self.rect.topleft = (x * self.tile_map.tile_size, y * self.tile_map.tile_size)
+            self.inventory.remove_item(plant_name, 1)  # уменьшаем количество семян
+        else:
+            print('Нельзя сажать на этом тайле!')
 
-    def draw_text(self, text, x, y, color=(0, 0, 0)):
-        '''Функция для отрисовки текста.'''
-        font = pygame.font.Font(None, 20)
-        text_surface = self.font.render(text, True, color)
-        self.screen.blit(text_surface, (x, y))
+    def draw(self):
+        '''отрисовка растений'''
+        self.screen.blit(self.image, self.rect.topleft)
+        # если растение полностью созрело, отрисовываем дроп рядом с ним
+        if self.harvested and self.drop:
+            drop_rect = self.drop.get_rect(topleft=(self.rect.x + 20, self.rect.y + 20))  # дроп рисуем рядом с растением
+            self.screen.blit(self.drop, drop_rect.topleft)
+
+    def collect(self):
+        '''сбор урожая'''
+        if self.harvested:
+            self.inventory.add_harvest(self.name.split()[0], 1)
+            print(f'Собрано: {self.name}')
+            return True  # урожай можно собрать
+        return False
