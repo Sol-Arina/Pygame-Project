@@ -209,6 +209,7 @@ while running:
             if action_menu.current_menu and action_menu.current_menu.is_enabled():
                 action_menu.current_menu.update(events)
                 action_menu.current_menu.draw(screen)
+                pygame.display.flip()
     else:
         screen.fill(BACKGROUND_TEAL)
         tile_map.draw_map(screen)
