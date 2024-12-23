@@ -106,8 +106,6 @@ chicken = Chicken(800, 240, chicken_spritesheet, chicken_frames_data, chicken_fr
 animals_group.add(cow, chicken)
 
 
-'''ОГОРОДНИК'''
-farmer = Farmer(screen, tile_map)
 ##################################################################################
 
 '''МЕНЮ ВЗАИМОДЕЙСТВИЯ С ОБЪЕКТАМИ'''
@@ -126,7 +124,8 @@ test_plant = Plant(name="Test Plant", growth_stages=plant_growth_stages, growth_
 plants_group = pygame.sprite.Group()
 plants_group.add(test_plant)
 
-
+'''ОГОРОДНИК'''
+farmer = Farmer(screen, tile_map, plants_group)
 
 '''Фоновая музыка'''
 bs = BackgroundSound('music.mp3') #сюда можно ввести название любого звукового файла, который хотим поставить на фон
@@ -195,7 +194,7 @@ while running:
             planting_menu.visible = True
     
 
-    interaction_type, target_object = farmer.check_interaction(animals_group, plants_group)
+    interaction_type, target_object = farmer.check_interaction(animals_group)
     if interaction_type == "animal" and not (animal_menu and animal_menu.visible):
         animal_menu = AnimalMenu(screen, target_object, farmer)
         animal_menu.visible = True
@@ -221,6 +220,9 @@ while running:
 
         for plant in plants_group:
             screen.blit(plant.get_image(), (plant.rect.x, plant.rect.y))
+
+        for animal in animals_group:
+            animal.draw_status(screen)
 
         if planting_menu and planting_menu.visible:
             planting_menu.draw()
