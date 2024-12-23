@@ -49,7 +49,7 @@ class Animal(pygame.sprite.Sprite):
         self.hunger_rate = 0.5 # скорость увеличения голода (в секунду?)
         self.energy_rate = 0.5 # скорость уменьшения энергии (в секунду?)
         self.last_status_update = pygame.time.get_ticks() # для обновления уровня голода и энергии
-
+        self.type = '' #определяется в классах коровы и курицы
 
     def load_frame(self, frame_name):
         """загрузка кадра по имени"""
@@ -127,13 +127,31 @@ class Animal(pygame.sprite.Sprite):
         self.move()
         self.animate(dt)
 
+    def draw_status(self, screen): #ДОБАВКА
+        """Отображает статус (например, готовность молока или яйца) над животным."""
+        font = pygame.font.Font('assets/fonts/pixelFont-7-8x14-sproutLands.ttf', 24)
+        if self.animal_type == 'cow' and self.milk_ready:
+            text = "Milk Ready"
+        elif self.animal_type == 'chicken' and self.egg_ready:
+            text = "Egg Ready"
+        elif self.hunger >= 65:
+            text = "Hungry!"
+        else:
+            text = None
+
+
+
+        text_surface = font.render(text, True, (255, 255, 255))
+        text_rect = text_surface.get_rect(center=(self.rect.centerx, self.rect.top - 10))
+        screen.blit(text_surface, text_rect)
+
 
 
 class Cow(Animal):
     def __init__(self, x, y, spritesheet, frames_data, frame_names, frame_size, tilemap=None, radius=5, speed=1):
         super().__init__(x, y, 'cow', spritesheet, frames_data, frame_names, frame_size, tilemap, radius, speed)
 
-        self.voice = AnimalSound("cow", {
+        self.voice = AnimalSound(self, {
             'moo': 'moo.wav',
             'hungry': 'hungry_cow.wav',
             'fed': 'cow_bells.wav',
@@ -145,7 +163,7 @@ class Cow(Animal):
         self.milk_ready = False  # Доступность молока
         self.last_moo_time = pygame.time.get_ticks()  # Для контроля периодичности обычного мычания
         self.last_hungry_moo_time = pygame.time.get_ticks() # для контроля периодичности голодного мычания
-
+        self.type = 'cow' #КАТЯ: добавила типы животных, чтобы в меню понимать, какую функцию вызывать
 
     def update_status(self):
         """Обновление уровня голода, энергии и звуков."""
@@ -153,7 +171,7 @@ class Cow(Animal):
 
         now = pygame.time.get_ticks()
 
-        if self.hunger >= 65: # если корова голодная
+        if self.hunger >= 65: # если корова голодная, дублируется в функции draw_status в Animal, если будет меняться цифра, там повторить
             if now - self.last_hungry_moo_time > random.randint(10000, 30000):
                 if not self.voice.sounds['hungry'].get_num_channels():
                     self.voice.play('hungry')
@@ -202,7 +220,7 @@ class Chicken(Animal):
     def __init__(self, x, y, spritesheet, frames_data, frame_names, frame_size, tilemap=None, radius=5, speed=1):
         super().__init__(x, y, 'chicken', spritesheet, frames_data, frame_names, frame_size, tilemap, radius, speed)
         # Звуки курицы
-        self.voice = AnimalSound('chicken', {
+        self.voice = AnimalSound(self, {
             'squeak': 'chickens.wav',
             'hungry': 'hungry_chickens.wav',
             'fed': 'cow_bells.wav',
@@ -214,7 +232,7 @@ class Chicken(Animal):
         self.egg_ready = False
         self.last_squeak_time = pygame.time.get_ticks()
         self.last_hungry_squeak_time = pygame.time.get_ticks()
-
+        self.type = 'chicken'
 
     def update_status(self):
         """Обновление уровня голода, энергии и звуков."""

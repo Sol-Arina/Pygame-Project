@@ -11,6 +11,7 @@ class Inventory:
             'Strawberry Seeds': 5,
             'Apple Seeds': 5
         }
+        self.products = {'milk' : 0, 'eggs' : 0}
         self.harvest = {}  # урожай, который собран (яблоки, пшеница..........)
 
     def add_item(self, item, quantity=1):

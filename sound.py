@@ -42,6 +42,7 @@ class BackgroundSound(BaseSound):
         pygame.init()
         pygame.mixer.music.load(file_name)
         pygame.mixer.music.set_volume(self.global_volume)
+        
 
     def play(self):
         pygame.mixer.music.play(-1)  # Проигрывание музыки в цикле
@@ -50,7 +51,7 @@ class BackgroundSound(BaseSound):
         """
         Обновляет громкость в соответствии с глобальной громкостью.
         """
-        pygame.mixer.music.set_volume(BaseSound.global_volume)
+        pygame.mixer.music.set_volume(BaseSound.global_volume - 0.3)
 
 
 class AnimalSound(BaseSound):
@@ -79,8 +80,12 @@ class AnimalSound(BaseSound):
 
     def update_volume(self):
         """Обновляет громкость звуков животного в соответствии с глобальной громкостью."""
-        for sound in self.sounds.values():
-            sound.set_volume(BaseSound.global_volume)
+        if self.animal.type == 'cow':
+            for sound in self.sounds.values():
+                sound.set_volume(BaseSound.global_volume)
+        else:
+            for sound in self.sounds.values():
+                sound.set_volume(BaseSound.global_volume + 0.4)
 
 
 class FarmerSound(BaseSound):
@@ -88,7 +93,8 @@ class FarmerSound(BaseSound):
         self.sounds = {
             'steps': pygame.mixer.Sound('steps.wav'),
             'no': pygame.mixer.Sound('no.mp3'), 
-            'okay': pygame.mixer.Sound('okay.mp3')
+            'okay': pygame.mixer.Sound('okay.mp3'), 
+            'watering' : pygame.mixer.Sound('water.wav')
         }
         self.update_volume()
         self.step_duration = 200  # Длительность звука шагов в миллисекундах
