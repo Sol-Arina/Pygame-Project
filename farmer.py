@@ -14,7 +14,7 @@ class Farmer:
 
     WALK_ANIMATION = [0, 1, 2, 3]  # Индексы кадров для анимации ходьбы
 
-    def __init__(self, screen, tilemap):
+    def __init__(self, screen, tilemap, plants_group):
         self.screen = screen
         self.tilemap = tilemap
         self.spritesheet = pygame.image.load("farmer.png").convert_alpha()
@@ -36,6 +36,7 @@ class Farmer:
         self.planting_menu = None
         self.current_tile_coords = None
         self.plants = {}
+        self.plants_group = plants_group
         self.inventory = Inventory()
 
         
@@ -114,7 +115,8 @@ class Farmer:
                 if self.playing_step_sound:
                     self.voice.play('no')  # Проигрываем звук "no"
                     self.playing_step_sound = False  # Сбрасываем флаг
-
+            
+            
             if self.tilemap.canifarmhere(tile_x_next, tile_y_next):
                 if (tile_x_next, tile_y_next) not in self.plants:
                     self.selected_tile = (tile_x_next * self.tilemap.tile_size, tile_y_next * self.tilemap.tile_size)
@@ -171,16 +173,15 @@ class Farmer:
         self.planting_menu = PlantingMenu(self.screen, self)
         self.planting_menu.visible = True
 
-    def check_interaction(self, animals_group, plants_group=None):
+    def check_interaction(self, animals_group):
         """Проверяет взаимодействие с животными или растениями."""
         if self.is_interacting:  # Если уже было взаимодействие, не повторяем
            return None, None
     
-        if plants_group:
-            for plant in plants_group: 
-                if self.screen_rect.colliderect(plant.rect):
-                    self.is_interacting = True
-                    return "plant", plant  # Возвращаем тип объекта и сам объект
+        for plant in self.plants_group: 
+            if self.screen_rect.colliderect(plant.rect):
+                self.is_interacting = True
+                return "plant", plant  # Возвращаем тип объекта и сам объект
         for animal in animals_group:
             if self.screen_rect.colliderect(animal.rect):
                 self.is_interacting = True
@@ -193,10 +194,12 @@ class Farmer:
             stages = self.get_growth_stages(seed_name)
             plant = Plant(name=seed_name, growth_stages=stages, x=x * self.tilemap.tile_size, y=y * self.tilemap.tile_size)
             self.plants[(x, y)] = plant
+            self.plants_group.add(plant)
             self.inventory.remove_item(seed_name, 1)
             self.selected_tile = None
             self.current_tile_coords = None
             self.planting_menu_open = False
+            return plant
 
     def get_growth_stages(self, seed_name):
         if seed_name == 'Wheat Seeds':
@@ -214,6 +217,17 @@ class Farmer:
 
     def feed(self):
         self.voice.play('okay')
+
+    def water(self):
+        self.voice.play('watering')
+    
+    def get_product(self, animal):
+        if animal.type == 'cow':
+            self.inventory.products['milk'] += 1
+            print(f"У вас {self.inventory.products['milk']} литров молока")
+        else:
+            self.inventory.products['eggs'] += 1
+            print(f"У вас {self.inventory.products['eggs']} яиц")
 
 
 class InteractionMenu:
@@ -264,15 +278,20 @@ class InteractionMenu:
 class AnimalMenu(InteractionMenu):
     def __init__(self, screen, animal, farmer):
         super().__init__(screen)
-        self.options = ['feed', 'close']
         self.farmer = farmer
         self.animal = animal
+        if self.animal.type == 'cow' and self.animal.milk_ready:
+            self.options = ['feed', 'get milk', 'close']
+        elif self.animal.type == 'chicken' and self.animal.egg_ready:
+            self.options = ['feed', 'pick up an egg', 'close']
+        else:
+            self.options = ['feed', 'close']
+              
 
     def feed(self):
         """Кормит животное."""
-        self.farmer.feed()
-        self.animal.feed()  # Добавьте действия для животного, если нужно
-        #self.farmer.is_interacting = False
+        #self.farmer.feed()
+        self.animal.feed()  
 
     def handle_input(self, event):
         """Обрабатывает ввод для AnimalMenu."""
@@ -280,6 +299,12 @@ class AnimalMenu(InteractionMenu):
         if selected_action:
             if selected_action == 'feed':
                 self.feed()
+            elif selected_action == 'get milk' or selected_action == 'pick up an egg':
+                if self.animal.type == 'cow':
+                    self.animal.milk()
+                else:
+                    self.animal.egg()
+                self.farmer.get_product(self.animal)
             elif selected_action == 'close':
                 self.visible = False
             self.visible = False
@@ -296,8 +321,8 @@ class PlantMenu(InteractionMenu):
         self.plant = plant
 
     def water(self):
-        """Кормит животное."""
-        self.farmer.feed()
+        """Поливаем растение"""
+        self.farmer.water()
         # self.plant.eat()  # Добавьте действия для животного, если нужно
         #self.farmer.is_interacting = False
 
@@ -326,10 +351,12 @@ class PlantingMenu(InteractionMenu):
         selected_action = super().handle_input(event)
         if selected_action:
             seed_name = selected_action.split(' (')[0]  # Извлекаем имя семян
-            self.farmer.plant_seed(seed_name)
+            plant = self.farmer.plant_seed(seed_name)
             self.visible = False
-            return seed_name
+            return plant
         return False
 
     def draw(self):
         super().draw()  # Используем метод отрисовки из InteractionMenu
+
+    

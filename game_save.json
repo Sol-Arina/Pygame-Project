@@ -1,0 +1,49 @@
+{
+    "farmer": {
+        "position": [
+            560,
+            360
+        ],
+        "inventory": {
+            "Wheat Seeds": 5,
+            "Tomato Seeds": 5,
+            "Strawberry Seeds": 5,
+            "Apple Seeds": 5
+        }
+    },
+    "animals": [
+        {
+            "type": "cow",
+            "position": [
+                346.6311072166137,
+                196.305333382557
+            ],
+            "hunger": 1.5259999999999991,
+            "energy": 98.47400000000013,
+            "milk_ready": false,
+            "egg_ready": false
+        },
+        {
+            "type": "chicken",
+            "position": [
+                799.6455337545005,
+                240.60994526781494
+            ],
+            "hunger": 1.5239999999999994,
+            "energy": 98.47600000000017,
+            "milk_ready": false,
+            "egg_ready": false
+        }
+    ],
+    "plants": [
+        {
+            "name": "Test Plant",
+            "position": [
+                400,
+                350
+            ],
+            "current_stage": 0,
+            "growth_time": 5
+        }
+    ]
+}
