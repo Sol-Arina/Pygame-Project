@@ -229,6 +229,21 @@ class Farmer:
             self.inventory.products['eggs'] += 1
             print(f"У вас {self.inventory.products['eggs']} яиц")
 
+# по аналогии с животными
+    def get_harvest(self, plant):
+        if plant.name == 'Wheat Seeds':
+            self.inventory.harvest['wheat'] += 1
+            print(f"у вас {self.inventory.harvest['wheat']} ед. пшеницы")
+        elif plant.name == 'Tomato Seeds': 
+            self.inventory.harvest['tomato'] += 1
+            print(f"у вас {self.inventory.harvest['tomato']} ед. помидоров")
+        elif plant.name == 'Apple Seeds': 
+            self.inventory.harvest['apple'] += 1
+            print(f"у вас {self.inventory.harvest['apple']} ед. яблок")
+        else:
+            self.inventory.harvest['strawberry'] += 1
+            print(f"у вас {self.inventory.harvest['strawberry']} ед. клубники")            
+
 
 class InteractionMenu:
     def __init__(self, screen):
@@ -316,9 +331,14 @@ class AnimalMenu(InteractionMenu):
 class PlantMenu(InteractionMenu):
     def __init__(self, screen, plant, farmer):
         super().__init__(screen)
-        self.options = ['water', 'close']
+        #self.options = ['water', 'close']
         self.farmer = farmer
         self.plant = plant
+
+        if self.plant.readytoharvest:
+            self.options = ['water', 'get harvest', 'close']
+        else:
+            self.options = ['water', 'close']
 
     def water(self):
         """Поливаем растение"""
@@ -332,6 +352,9 @@ class PlantMenu(InteractionMenu):
         if selected_action:
             if selected_action == 'water':
                 self.water()
+            elif selected_action == 'get harvest':
+                self.plant.harvestcheck()
+                self.farmer.get_harvest(self.plant)    
             elif selected_action == 'close':
                 self.visible = False
             self.visible = False
