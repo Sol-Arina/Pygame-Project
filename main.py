@@ -1,8 +1,4 @@
-import sys
-import time
-import json
 import pygame
-import pygame_menu
 from tiles import *
 from spritesheet import Spritesheet # type: ignore
 from animals import Animal, Cow, Chicken, load_animal_frames
@@ -62,8 +58,6 @@ background_image = pygame.image.load('assets/action_menu/background.png')
 menu_icon = pygame.image.load('assets/action_menu/menu_icon.png')  
 menu_icon_rect = menu_icon.get_rect()
 menu_icon_rect.topleft = (SCREEN_WIDTH - 60, 20)  # правый верхний угол
-
-action_menu = ActionMenu(screen, font_path, item_images)
 #menu_act = action_menu.create_menu() 
 
 
@@ -135,6 +129,7 @@ animal_menu = None
 plant_menu = None
 planting_menu = None
 
+action_menu = ActionMenu(screen, font_path, item_images, farmer=farmer)
 
 # Game loop
 running = True

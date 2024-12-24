@@ -1,6 +1,7 @@
 import pygame
 import pygame_menu
-import uuid
+from farmer import Farmer
+#import uuid
 
 pygame.init()
 
@@ -15,52 +16,38 @@ SCREEN_HEIGHT = 720 # 16 умножить на 45
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 class ActionMenu:
-    def __init__(self, screen, font_path, item_images, money=1000):
+    '''класс для меню действий - магазина и инвентаря'''
+    def __init__(self, screen, font_path, item_images, farmer, money=100):
         self.screen = screen
         self.font = font_path  # нащ шрифт
         self.money = money  # деньги игрока
-        #self.current_tab = 'shop'
-        #self.current_tab = 'main'  # указатель на текущее меню
-        
         self.message = ''
         self.menu_open = False  #  контроль состояния меню
         self.total_cost = 0
         #self.background = pygame.image.load(background)
         #self.theme = theme
         
-        # ьовары магазина 
+        # товары магазина 
         self.shop_items = [
             {'name': 'Wheat Seeds', 'price': 5, 'quantity': 0},
             {'name': 'Tomato Seeds', 'price': 5, 'quantity': 0},
-            {'name': 'Strawberry Bush', 'price': 10, 'quantity': 0},
-            {'name': 'Apple Tree', 'price': 10, 'quantity': 0},
+            {'name': 'Strawberry Seeds', 'price': 10, 'quantity': 0},
+            {'name': 'Apple Seeds', 'price': 10, 'quantity': 0},
             {'name': 'Chicken', 'price': 15, 'quantity': 0},
             {'name': 'Cow', 'price': 25, 'quantity': 0},
         ]
         self.sell_items = [
-            {'name': 'Wheat', 'price': 6, 'quantity': 0},
-            {'name': 'Tomato', 'price': 8, 'quantity': 0},
-            {'name': 'Apple', 'price': 15, 'quantity': 0},
-            {'name': 'Strawberries', 'price': 20, 'quantity': 0},
-            {'name': 'Egg', 'price': 5, 'quantity': 0},
-            {'name': 'Milk', 'price': 10, 'quantity': 0},
+            {'name': 'wheat', 'price': 6, 'quantity': 0},
+            {'name': 'tomato', 'price': 6, 'quantity': 0},
+            {'name': 'apple', 'price': 11, 'quantity': 0},
+            {'name': 'strawberry', 'price': 11, 'quantity': 0},
+            {'name': 'eggs', 'price': 2, 'quantity': 0},
+            {'name': 'milk', 'price': 3, 'quantity': 0},
         ]
         
-        self.inventory = {
-            'Wheat Seeds': 0,
-            'Tomato Seeds': 0,
-            'Strawberry Bush': 0,
-            'Apple Tree': 0,
-            'Chicken': 0,
-            'Cow': 0,
-            'Egg': 0,
-            'Milk': 0,
-            'Wheat': 0,
-            'Tomato': 0,
-            'Apple': 0,
-            'Strawberries': 0,
-        }
-
+        self.farmer = farmer
+        self.inventory = farmer.inventory
+      
         #self.background = pygame_menu.baseimage.load('assets/action_menu/background.png')
 
         self.theme = pygame_menu.themes.THEME_SOLARIZED.copy()
@@ -79,51 +66,52 @@ class ActionMenu:
             'Coin': pygame.image.load(item_images['coin'])
         }
 
-        # Инициализация меню
+        # инициализация меню
         self.menu = self.create_menu() # это главное окно
-         # Добавляем подменю для магазина и инвентаря
+         # подменю для магазина и инвентаря
         self.shop_menu = self.create_shop_menu()
-        self.inventory_menu = self.create_inventory_menu()
+        self.inventory_menu = self.create_inventory_menu(farmer)
 
-        self.current_menu = self.menu # ПО ДЕФОЛТУ В ЭТОМ ОКНЕ ВСЁ
-
-    #def set_background(self, surface):
-    #    surface.blit(self.background, (0, 0))    
+        self.current_menu = self.menu # ПО ДЕФОЛТУ В ЭТОМ ОКНЕ ВСЁ   
 
     def create_menu(self):
-        """Создает и возвращает объект меню pygame_menu.Menu"""
-        #my_theme = pygame_menu.themes.THEME_DARK.copy()  # Копируем существующую тему
-        #my_theme.background_color = surface.blit(self.background, (0, 0))
-        menu = pygame_menu.Menu('Action Menu', 1000, 521, theme=self.theme)
+        '''создает главное меню (объект pygame_menu.Menu)'''
+        menu = pygame_menu.Menu('Action Menu', 900, 521, theme=self.theme)
 
-        # добавляем кнопки для переключения вкладок
+        # кнопки для переключения вкладок
         menu.add.button('Shop', self.switch_to_shop).set_alignment(pygame_menu.locals.ALIGN_LEFT).set_margin(20, 60)
         menu.add.button('Inventory', self.switch_to_inventory).set_alignment(pygame_menu.locals.ALIGN_LEFT).set_margin(20, 60)
         
-        # жобавляем кнопку закрытия меню, используя функцию close_menu
-        #menu.add.button('Close Menu', self.close_menu)
-
-        # Отображение денег игрока
-        menu.add.label(f"Money: ${self.money}").set_alignment(pygame_menu.locals.ALIGN_LEFT).set_margin(20, 60)
-
+        # Отображение денег игрока ПЕРЕНЕСЕНО ВО ВКЛАДКУ МАГАЗИН
+        #menu.add.label(f"Money: ${self.money}").set_alignment(pygame_menu.locals.ALIGN_LEFT).set_margin(20, 60)
         return menu
  
     def create_shop_menu(self):
         '''ЭТА ФУНКЦИЯ ОТОБРАЖАЕТ МАГАЗ'''
         shop_menu = pygame_menu.Menu('Shop', 500, 521, theme=self.theme)
-        # Конфигурируем шоп меню
-        shop_menu.add.label('Shop Items')
+        #  шоп меню 
+        shop_menu.add.label('you can buy:')
         for item in self.shop_items:
             name, price, quantity = item['name'], item['price'], item['quantity']
-            # Отображаем товар и кнопки +/-
-            shop_menu.add.label(f'{name}: {quantity} x ${price}')#.set_alignment(pygame_menu.locals.ALIGN_RIGHT).set_margin(20, 60)
-            shop_menu.add.button('+', lambda item=item: self.increase_quantity(item))#.set_alignment(pygame_menu.locals.ALIGN_RIGHT).set_margin(20, 60)
-            shop_menu.add.button('-', lambda item=item: self.decrease_quantity(item))#.set_alignment(pygame_menu.locals.ALIGN_RIGHT).set_margin(20, 60)
-        # Отображаем общую сумму покупки
-        shop_menu.add.label(f'Total Cost: ${self.total_cost}')#.set_alignment(pygame_menu.locals.ALIGN_RIGHT).set_margin(20, 60)
-        # Кнопки купить и продать
-        shop_menu.add.button('Buy', self.handle_buy) #.set_alignment(pygame_menu.locals.ALIGN_RIGHT).set_margin(20, 60)
-        shop_menu.add.button('Sell', self.handle_sell) #.set_alignment(pygame_menu.locals.ALIGN_RIGHT).set_margin(20, 60)
+            # отображаем товар и кнопки +/-
+            shop_menu.add.label(f'{name}: {quantity} x ${price}').set_alignment(pygame_menu.locals.ALIGN_LEFT)#.set_margin(20, 20)
+            shop_menu.add.button('+', lambda item=item: self.increase_quantity(item))#.set_alignment(pygame_menu.locals.ALIGN_LEFT)#.set_margin(20, 20)
+            shop_menu.add.button('-', lambda item=item: self.decrease_quantity(item))#.set_alignment(pygame_menu.locals.ALIGN_LEFT)#.set_margin(20, 20)
+        # you can sell
+        shop_menu.add.label('you can sell:')    
+        for item in self.sell_items:
+            name, price, quantity = item['name'], item['price'], item['quantity']
+            # отображаем товар и кнопки +/-
+            shop_menu.add.label(f'{name}: {quantity} x ${price}').set_alignment(pygame_menu.locals.ALIGN_LEFT)#.set_margin(20, 20)
+            shop_menu.add.button('+', lambda item=item: self.increase_quantity(item))#.set_alignment(pygame_menu.locals.ALIGN_LEFT)#.set_margin(20, 20)
+            shop_menu.add.button('-', lambda item=item: self.decrease_quantity(item))#.set_alignment(pygame_menu.locals.ALIGN_LEFT)#.set_margin(20, 20)
+  
+        # отображаем общую сумму покупки
+        shop_menu.add.label(f'Total: ${self.total_cost}').set_alignment(pygame_menu.locals.ALIGN_RIGHT)#.set_margin(20, 20)
+        shop_menu.add.label(f'Money: ${self.money}').set_alignment(pygame_menu.locals.ALIGN_LEFT)#.set_margin(20, 60)
+        # нопки купить и продать
+        shop_menu.add.button('Buy', self.handle_buy).set_alignment(pygame_menu.locals.ALIGN_RIGHT)#.set_margin(20, 20)
+        shop_menu.add.button('Sell', self.handle_sell).set_alignment(pygame_menu.locals.ALIGN_RIGHT)#.set_margin(20, 20)
         # Кнопка Назад
         shop_menu.add.button('Back', self.switch_to_main)
         #for item in self.shop_items:
@@ -132,44 +120,37 @@ class ActionMenu:
         #shop_menu.add.button('Back', self.switch_to_main)
         return shop_menu
 
-    def create_inventory_menu(self):
+    def create_inventory_menu(self, farmer):
         '''ЭТА ФУНКЦИЯ ОТОБРАЖАЕТ ИНВЕНТАРЬ'''
         inventory_menu = pygame_menu.Menu('Inventory', 500, 521, theme=self.theme)
-        #  меню инвентаря
-        inventory_menu.add.label('Inventory Items')
-        for item, quantity in self.inventory.items():
-            inventory_menu.add.label(f'{item}: {quantity}')
+        self.inventory = farmer.inventory
+        # семена
+        #inventory_menu.add.label('Inventory Items')
+        for item, quantity in self.inventory.items.items():
+            inventory_menu.add.label(f'{item}: {quantity}').set_alignment(pygame_menu.locals.ALIGN_LEFT).set_margin(60, 20)
+        # молоко и яйца    
+        for product, quantity in self.inventory.products.items():
+            inventory_menu.add.label(f'{product}: {quantity}').set_alignment(pygame_menu.locals.ALIGN_LEFT).set_margin(60, 20)
+        # урожай: пшеница, помидоры, яблоки, клубника    
+        for harvest, quantity in self.inventory.harvest.items():
+            inventory_menu.add.label(f'{harvest}: {quantity}').set_alignment(pygame_menu.locals.ALIGN_LEFT).set_margin(60, 20)  
         # Кнопка НАЗАД
         inventory_menu.add.button('Back', self.switch_to_main)
         return inventory_menu
 
     def switch_to_main(self):
         '''back to actiom menu main tab'''
-        if self.current_menu:  # Отключаем текущее активное меню
+        if self.current_menu:  # отключаем текущее активное меню
             self.current_menu.disable()
-            self.current_menu = self.menu  # Переключаемся на главное меню
+            self.current_menu = self.menu  # переключаемся на главное меню
             self.current_menu.enable()
-        #self.current_menu = self.menu
-        #self.current_menu.enable()
-        #self.current_tab = 'main'
-        #self.menu.enable() 
-        #self.shop_menu.disable()
-        #self.inventory_menu.disable()  
-
 
     def switch_to_shop(self):
         """Переключение на вкладку 'shop'"""  
-        if self.current_menu:  # Отключаем текущее активное меню
+        if self.current_menu:  # отключаем текущее меню
             self.current_menu.disable()
-            self.current_menu = self.shop_menu  # Переключаемся на главное меню
+            self.current_menu = self.shop_menu  # на главное меню
             self.current_menu.enable()
-        
-        #self.current_menu = self.shop_menu
-
-        #self.current_tab = 'shop'
-        #self.main_menu.disable()
-        #self.shop_menu.enable()
-        #self.inventory_menu.disable()
 
     def draw_shop_tab(self):
         """эта функция ничего не делает и не используется, но я кое-что отсюда копирую в create_shop_tab"""
@@ -182,112 +163,121 @@ class ActionMenu:
             self.menu.add.button('+', lambda item=item: self.increase_quantity(item)).set_alignment(pygame_menu.locals.ALIGN_RIGHT).set_margin(20, 60)
             self.menu.add.button('-', lambda item=item: self.decrease_quantity(item)).set_alignment(pygame_menu.locals.ALIGN_RIGHT).set_margin(20, 60)
         # Отображаем общую сумму покупки
-        self.menu.add.label(f'Total Cost: ${self.total_cost}').set_alignment(pygame_menu.locals.ALIGN_RIGHT).set_margin(20, 60)
+        self.menu.add.label(f'Total: ${self.total_cost}').set_alignment(pygame_menu.locals.ALIGN_RIGHT).set_margin(20, 60)
         # Кнопки купить и продать
         self.menu.add.button('Buy', self.handle_buy).set_alignment(pygame_menu.locals.ALIGN_RIGHT).set_margin(20, 60)
         self.menu.add.button('Sell', self.handle_sell).set_alignment(pygame_menu.locals.ALIGN_RIGHT).set_margin(20, 60)
 
     def handle_buy(self):
-        """Обработка покупки"""
-        for item in self.shop_items:
+        '''Обработка покупки'''
+        for item in self.shop_items:  # это раздел you can buy
             if item['quantity'] > 0:
-                self.inventory[item['name']] += item['quantity']
-                self.money -= item['price'] * item['quantity']
+                total_price = item['price'] * item['quantity']
+                if self.money >= total_price:
+                    # выводим сообщение о покупке
+                    print(f"Покупка {item['quantity']} {item['name']} за {total_price}$. Денег осталось: {self.money - total_price}$")
+                    # добавляем товар в инвентарь фермера
+                    self.farmer.inventory.add_item(item['name'], item['quantity'])
+                    # уменьшаем деньги игрока
+                    self.money -= total_price
+                else:
+                    # недостаточно денег
+                    print(f"Недостаточно денег для покупки {item['name']}. Необходимо {total_price}$, доступно {self.money}$")
+
+                # обнуляем количество товара после операции
                 item['quantity'] = 0
+
         self.total_cost = 0
-        #self.draw_shop_tab()
+        self.update_shop_menu()
 
     def handle_sell(self):
-        """Обработка продажи"""
-        for item in self.shop_items:
-            inv_item = self.inventory.get(item['name'])
-            if inv_item and inv_item >= item['quantity']:
-                self.money += item['price'] * item['quantity']
-                self.inventory[item['name']] -= item['quantity']
-                item['quantity'] = 0
+        '''Обработка продажи'''
+        for item in self.sell_items:  # это раздел you can sell
+            # обработка для товаров из harvest
+            inv_item_quantity = self.farmer.inventory.harvest.get(item['name'].lower(), 0)
+            if inv_item_quantity >= item['quantity'] > 0:
+                # выводим сообщение о продаже
+                total_price = item['price'] * item['quantity']
+                print(f"Продажа {item['quantity']} {item['name']} за {total_price}$. Денег стало: {self.money + total_price}$")
+                # увеличиваем деньги игрока
+                self.money += total_price
+                # уменьшаем количество проданного товара в инвентаре
+                self.farmer.inventory.harvest[item['name'].lower()] -= item['quantity']
+            elif inv_item_quantity > 0:
+                # нет достаточного количества товара для продажи из harvest
+                print(f"Недостаточно товара {item['name']} для продажи из урожая. В наличии: {inv_item_quantity}, требуется: {item['quantity']}")
+
+            # обработка для товаров из products
+            inv_product_quantity = self.farmer.inventory.products.get(item['name'].lower(), 0)
+            if inv_product_quantity >= item['quantity'] > 0:
+                total_price = item['price'] * item['quantity']
+                print(f"Продажа {item['quantity']} {item['name']} за {total_price}$. Денег стало: {self.money + total_price}$")
+                self.money += total_price
+                self.farmer.inventory.products[item['name'].lower()] -= item['quantity']
+            elif inv_product_quantity > 0:
+                # нет товара для продажи из продуктов
+                print(f"Недостаточно товара {item['name']} для продажи из продуктов. В наличии: {inv_product_quantity}, требуется: {item['quantity']}")
+
+            # обнуление товара после обработки
+            item['quantity'] = 0
+
         self.total_cost = 0
-        #self.draw_shop_tab()      
+        self.update_shop_menu() 
 
     def switch_to_inventory(self):
-        """Переключение на вкладку 'inventory'."""
-        if self.current_menu:  # Отключаем текущее активное меню
+        """Переключение на вкладку 'inventory'"""
+        if self.current_menu: 
             self.current_menu.disable()
-            self.current_menu = self.inventory_menu  # Переключаемся на главное меню
+
+            # пересоздаем меню инвентаря каждый раз при его открытии чтобы цифры обновлялись!!
+            self.inventory_menu = self.create_inventory_menu(self.farmer)
+
+            self.current_menu = self.inventory_menu  # переключаемся на меню инвентаря
             self.current_menu.enable()
-
-        #self.current_menu = self.inventory_menu
-
-        #self.current_tab = 'inventory'
-        #self.menu.disable()
-        #self.shop_menu.disable()
-        #self.inventory_menu.enable()
-
-        #self.menu.clear()
-        #self.draw_inventory_tab()
-        #self.menu.enable()
-
-    def draw_inventory_tab(self):
-        """Отрисовка вкладки инвентаря."""
-        self.menu.clear()
-        self.menu.add.label("Inventory").set_alignment(pygame_menu.locals.ALIGN_RIGHT).set_margin(20, 60)
-        for item, quantity in self.inventory.items():
-            self.menu.add.label(f'{item}: {quantity}').set_alignment(pygame_menu.locals.ALIGN_RIGHT).set_margin(20, 60)  
 
     def close_menu(self):
         '''закрыть меню'''
-        self.menu.disable()  # Отключаем существующее меню
-        self.menu_open = False  # Обновляем флаг
+        self.menu.disable()  # jтключаем существующее меню
+        self.menu_open = False  # обновляем маркер
 
     def increase_quantity(self, item):
-        """Увеличение количества товара."""
+        '''Увеличение количества товара'''
         item['quantity'] += 1
         self.total_cost += item['price']
-        #self.update_shop_menu()
+        self.update_shop_menu()
 
     def decrease_quantity(self, item):
-        """Уменьшение количества товара."""
+        '''Уменьшение количества товара'''
         if item['quantity'] > 0:
             item['quantity'] -= 1
             self.total_cost -= item['price']
-            #self.update_shop_menu()
+            self.update_shop_menu()
 
-    #def update_shop_menu(self):
-    #    """Перерисовка пунктов меню и обновление отображаемых значений."""
-    #    if self.shop_menu.is_enabled():
-    #        for item in self.shop_items:
-    #            label = self.shop_menu.get_widget(item['name'])
-    #            label.set_title(f'{item["name"]}: {item["quantity"]} x ${item["price"]}')
-    #        total_label = self.shop_menu.get_widget("total_cost")
-    #        total_label.set_title(f'Total Cost: ${self.total_cost}')
-    #        money_label = self.menu.get_widgets()[2]  # Индекс может быть перестроен
-    #        money_label.set_title(f"Money: ${self.money}")
-    #        #self.shop_menu.update(events)        
+    def update_shop_menu(self):
+        '''ОБНОВЛЕНИЕ ВКЛАДКИ МАГАЗ ПРИ НАЖАТИИ НА КНОПКИ В НЕЙ'''
+        self.shop_menu.clear()  # очищаем текущее меню
 
-    #def increase_quantity(self, item):
-    #    """Увеличение количества товара."""
-    #    item['quantity'] += 1
-    #    self.total_cost += item['price']
-    #    self.draw_shop_tab()
+        self.shop_menu.add.label('you can buy:')
+        for item in self.shop_items:
+            name, price, quantity = item['name'], item['price'], item['quantity']
+            # отображаем товар и кнопки +/-
+            self.shop_menu.add.label(f'{name}: {quantity} x ${price}').set_alignment(pygame_menu.locals.ALIGN_LEFT)#.set_margin(20, 20)
+            self.shop_menu.add.button('+', lambda item=item: self.increase_quantity(item))#.set_alignment(pygame_menu.locals.ALIGN_LEFT)#.set_margin(20, 20)
+            self.shop_menu.add.button('-', lambda item=item: self.decrease_quantity(item))#.set_alignment(pygame_menu.locals.ALIGN_LEFT)#.set_margin(20, 20)
+        # you can sell
+        self.shop_menu.add.label('you can sell:')    
+        for item in self.sell_items:
+            name, price, quantity = item['name'], item['price'], item['quantity']
+            # отображаем товар и кнопки +/-
+            self.shop_menu.add.label(f'{name}: {quantity} x ${price}').set_alignment(pygame_menu.locals.ALIGN_LEFT)#.set_margin(20, 20)
+            self.shop_menu.add.button('+', lambda item=item: self.increase_quantity(item))#.set_alignment(pygame_menu.locals.ALIGN_LEFT)#.set_margin(20, 20)
+            self.shop_menu.add.button('-', lambda item=item: self.decrease_quantity(item))#.set_alignment(pygame_menu.locals.ALIGN_LEFT)#.set_margin(20, 20)
 
-    #def decrease_quantity(self, item):
-    #    """Уменьшение количества товара."""
-    #    if item['quantity'] > 0:
-    #        item['quantity'] -= 1
-    #        self.total_cost -= item['price']
-    #    self.draw_shop_tab()'''
-
-    '''def main_loop(self):
-        """Основной цикл меню с отрисовкой фона."""
-        events = pygame.event.get()
-        self.menu.update(events)  # Обновляем меню
-        self.menu.draw(self.screen)  # Отрисовываем меню с фоном
-        pygame.display.update()'''
-
-    '''def draw_background(self, surface: pygame.Surface):
-        """Отрисовка фонового изображения."""
-        screen.fill(BACKGROUND_TEAL)
-        surface.blit(self.background, (0, 0))
-        pygame.display.update()'''    
-
-
-
+        # отображаем общую сумму покупки    
+        self.shop_menu.add.label(f'Total: ${self.total_cost}').set_alignment(pygame_menu.locals.ALIGN_RIGHT)#.set_margin(20, 20)
+        self.shop_menu.add.label(f'Money: ${self.money}').set_alignment(pygame_menu.locals.ALIGN_LEFT)#.set_margin(20, 60)
+        # нопки купить и продать
+        self.shop_menu.add.button('Buy', self.handle_buy).set_alignment(pygame_menu.locals.ALIGN_RIGHT)#.set_margin(20, 20)
+        self.shop_menu.add.button('Sell', self.handle_sell).set_alignment(pygame_menu.locals.ALIGN_RIGHT)#.set_margin(20, 20)
+        # кнопка НАЗАД
+        self.shop_menu.add.button('Back', self.switch_to_main)
