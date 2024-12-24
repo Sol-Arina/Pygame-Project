@@ -10,7 +10,9 @@ class Inventory:
             'Wheat Seeds': 5,
             'Tomato Seeds': 5,
             'Strawberry Seeds': 5,
-            'Apple Seeds': 5
+            'Apple Seeds': 5,
+            'Chicken': 0,
+            'Cow': 0
         }
 
         self.products = {'milk' : 0, 'eggs' : 0}
