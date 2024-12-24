@@ -37,7 +37,6 @@ class Farmer:
         self.current_tile_coords = None
         self.plants = {}
         self.plants_group = plants_group
-        self.inventory = Inventory()
 
         
         # Флаг для звука шагов

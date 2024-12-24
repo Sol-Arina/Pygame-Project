@@ -32,7 +32,7 @@ class Inventory:
         else:
             self.harvest[crop] = quantity
 
-class Plant(pygame.sprite.Sprite): # ОСТАНОВИЛАСЬ ЗДЕСЬ!!!!!!!!!!!!!!!!!!!!!!!!!!
+class Plant(pygame.sprite.Sprite): 
     '''Класс растений: пшеница, помидоры, яблоки, клубника'''
     def __init__(self, name, growth_stages, growth_time=60, x=0, y=0):
         super().__init__()
@@ -100,11 +100,3 @@ class Plant(pygame.sprite.Sprite): # ОСТАНОВИЛАСЬ ЗДЕСЬ!!!!!!!!
         if self.readytoharvest and self.drop:
             drop_rect = self.drop.get_rect(topleft=(self.rect.x + 20, self.rect.y + 20))  # дроп рисуем рядом с растением
             self.screen.blit(self.drop, drop_rect.topleft)
-
-    '''def collect(self):
-        """сбор урожая"""
-        if self.readytoharvest:
-            self.inventory.add_harvest(self.name.split()[0], 1)
-            print(f'Собрано: {self.name}')
-            return True  # урожай можно собрать
-        return False'''
