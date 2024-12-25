@@ -178,6 +178,10 @@ class ActionMenu:
                     print(f"Покупка {item['quantity']} {item['name']} за {total_price}$. Денег осталось: {self.money - total_price}$")
                     # добавляем товар в инвентарь фермера
                     self.farmer.inventory.add_item(item['name'], item['quantity'])
+                    if item == 'Cow':
+                        self.farmer.buy_animal('cow')
+                    elif item == 'Chicken':
+                        self.farmer.buy_animal('chicken')
                     # уменьшаем деньги игрока
                     self.money -= total_price
                 else:
