@@ -119,7 +119,7 @@ plants_group = pygame.sprite.Group()
 plants_group.add(test_plant)
 
 '''ОГОРОДНИК'''
-farmer = Farmer(screen, tile_map, plants_group)
+farmer = Farmer(screen, tile_map, plants_group, animals_group)
 
 '''Фоновая музыка'''
 bs = BackgroundSound('music.mp3') #сюда можно ввести название любого звукового файла, который хотим поставить на фон
