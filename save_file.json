@@ -1,0 +1,132 @@
+{
+    "farmer": {
+        "position": [
+            491,
+            237
+        ],
+        "inventory": {
+            "items": {
+                "Wheat Seeds": 4,
+                "Tomato Seeds": 5,
+                "Strawberry Seeds": 5,
+                "Apple Seeds": 5,
+                "Chicken": 1,
+                "Cow": 1
+            },
+            "products": {
+                "milk": 1,
+                "eggs": 0
+            },
+            "harvest": {
+                "wheat": 0,
+                "tomato": 0,
+                "apple": 0,
+                "strawberry": 0
+            }
+        },
+        "money": 54
+    },
+    "animals": [
+        {
+            "type": "cow",
+            "position": [
+                527.5902458760929,
+                268.3519590902259
+            ],
+            "hunger": 6.624999999999973,
+            "energy": 147.47000000000315,
+            "milk_ready": false,
+            "egg_ready": false
+        },
+        {
+            "type": "chicken",
+            "position": [
+                1004.4574906942102,
+                178.09154949515863
+            ],
+            "hunger": 39.61600000000028,
+            "energy": 80.62650000001004,
+            "milk_ready": false,
+            "egg_ready": false
+        }
+    ],
+    "plants": [
+        {
+            "name": "Wheat Seeds",
+            "position": [
+                528,
+                352
+            ],
+            "current_stage": 1,
+            "growth_time": 60
+        }
+    ],
+    "action_menu": {
+        "shop_items": [
+            {
+                "name": "Wheat Seeds",
+                "price": 5,
+                "quantity": 0
+            },
+            {
+                "name": "Tomato Seeds",
+                "price": 5,
+                "quantity": 0
+            },
+            {
+                "name": "Strawberry Seeds",
+                "price": 10,
+                "quantity": 0
+            },
+            {
+                "name": "Apple Seeds",
+                "price": 10,
+                "quantity": 0
+            },
+            {
+                "name": "Chicken",
+                "price": 15,
+                "quantity": 0
+            },
+            {
+                "name": "Cow",
+                "price": 25,
+                "quantity": 0
+            }
+        ],
+        "sell_items": [
+            {
+                "name": "wheat",
+                "price": 6,
+                "quantity": 0
+            },
+            {
+                "name": "tomato",
+                "price": 6,
+                "quantity": 0
+            },
+            {
+                "name": "apple",
+                "price": 11,
+                "quantity": 0
+            },
+            {
+                "name": "strawberry",
+                "price": 11,
+                "quantity": 0
+            },
+            {
+                "name": "eggs",
+                "price": 3,
+                "quantity": 0
+            },
+            {
+                "name": "milk",
+                "price": 5,
+                "quantity": 1
+            }
+        ],
+        "total_cost": 0,
+        "current_menu": "shop"
+    }
+}

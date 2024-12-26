@@ -1,4 +1,5 @@
 import pygame
+import json
 from tiles import *
 from spritesheet import Spritesheet # type: ignore
 from animals import Animal, Cow, Chicken, load_animal_frames
@@ -8,6 +9,158 @@ from actionmenu import ActionMenu
 from plants import Plant
 # sys.dont_write_bytecode = True
 # from lib.core import Core
+
+def save_game(file_path, farmer, animals_group, plants_group, action_menu):
+    """Сохраняет состояние игры в файл."""
+    game_state = {
+        "farmer": {
+            "position" : [farmer.pos_x, farmer.pos_y],
+            "inventory": {
+                "items": farmer.inventory.items,
+                "products": farmer.inventory.products,
+                "harvest": farmer.inventory.harvest,
+            },
+            "money" : farmer.money
+        },
+        "animals": [
+            {
+                "type": animal.animal_type,
+                "position": [animal.pos.x, animal.pos.y],
+                "hunger": animal.hunger,
+                "energy": animal.energy,
+                "milk_ready": getattr(animal, "milk_ready", False),
+                "egg_ready": getattr(animal, "egg_ready", False),
+            } for animal in animals_group
+        ],
+        "plants": [
+            {
+                "name": plant.name,
+                "position": [plant.rect.x, plant.rect.y],
+                "current_stage": plant.current_stage,
+                "growth_time": plant.growth_time,
+            } for plant in plants_group
+        ],
+        "action_menu": {
+            "shop_items": action_menu.shop_items,
+            "sell_items": action_menu.sell_items,
+            "total_cost": action_menu.total_cost,
+            "current_menu": (
+                "shop" if action_menu.current_menu == action_menu.shop_menu else
+                "inventory" if action_menu.current_menu == action_menu.inventory_menu else
+                "main"
+            ),
+        },
+    }
+    
+    
+    with open(file_path, "w") as f:
+        json.dump(game_state, f, indent=4)
+
+def load_game(file_path, farmer, animals_group, plants_group, action_menu):
+    """Загружает состояние игры из файла."""
+    try:
+        with open(file_path, "r") as f:
+            game_state = json.load(f)
+        
+        # Восстанавливаем состояние фермера
+        farmer.pos_x, farmer.pos_y = game_state["farmer"]["position"]
+        farmer.inventory.items = game_state["farmer"]["inventory"]["items"]
+        farmer.inventory.products = game_state["farmer"]["inventory"]["products"]
+        farmer.inventory.harvest = game_state["farmer"]["inventory"]["harvest"]
+        farmer.money = game_state["farmer"]["money"]
+
+        # Восстанавливаем животных
+        animals_group.empty()
+        for animal_data in game_state["animals"]:
+            if animal_data["type"] == "cow":
+                animal = Cow(
+                    animal_data["position"][0],
+                    animal_data["position"][1],
+                    cow_spritesheet,
+                    cow_frames_data,
+                    cow_frame_names,
+                    (32, 32),
+                    tilemap=tile_map,
+                )
+            elif animal_data["type"] == "chicken":
+                animal = Chicken(
+                    animal_data["position"][0],
+                    animal_data["position"][1],
+                    chicken_spritesheet,
+                    chicken_frames_data,
+                    chicken_frame_names,
+                    (16, 16),
+                    tilemap=tile_map,
+                )
+            animal.hunger = animal_data["hunger"]
+            animal.energy = animal_data["energy"]
+            if "milk_ready" in animal_data:
+                animal.milk_ready = animal_data["milk_ready"]
+            if "egg_ready" in animal_data:
+                animal.egg_ready = animal_data["egg_ready"]
+            animals_group.add(animal)
+
+        # Восстанавливаем растения
+        plants_group.empty()
+        for plant_data in game_state["plants"]:
+            growth_stages = farmer.get_growth_stages(plant_data["name"])
+            if not growth_stages:
+                print(f"Skipping plant {plant_data['name']} due to missing growth stages.")
+                continue
+
+            plant = Plant(
+                name=plant_data["name"],
+                growth_stages=growth_stages,
+                growth_time=plant_data["growth_time"],
+                x=plant_data["position"][0],
+                y=plant_data["position"][1],
+            )
+            plant.current_stage = plant_data["current_stage"]
+            plants_group.add(plant)
+
+            # Восстанавливаем состояние Action Menu
+        action_menu.shop_items = game_state["action_menu"]["shop_items"]
+        action_menu.sell_items = game_state["action_menu"]["sell_items"]
+        action_menu.total_cost = game_state["action_menu"]["total_cost"]
+
+        current_menu = game_state["action_menu"]["current_menu"]
+        if current_menu == "shop":
+            action_menu.current_menu = action_menu.shop_menu
+        elif current_menu == "inventory":
+            action_menu.current_menu = action_menu.inventory_menu
+        else:
+            action_menu.current_menu = action_menu.menu
+
+        action_menu.update_money_display()
+
+    except FileNotFoundError:
+        print("Сохраненный файл не найден. Начинаем новую игру.")
+
+
+def prompt_for_choice(file_path):
+    """Запрашивает выбор: новая игра или продолжение."""
+    while True:
+        choice = input("Введите 'n' для новой игры или 'c' для продолжения: ").strip().lower()
+        if choice == 'n':
+            if os.path.exists(file_path):
+                os.remove(file_path)  # Удаляем файл сохранения
+            print("Начинаем новую игру...")
+            return False  # Не загружать сохранение
+        elif choice == 'c':
+            if os.path.exists(file_path):
+                print("Продолжаем сохраненную игру...")
+                return True  # Загружать сохранение
+            else:
+                print("Файл сохранения не найден. Начинаем новую игру...")
+                return False  # Не загружать сохранение
+        else:
+            print("Неверный ввод. Введите 'n' или 'c'.")
+
+# Основной код
+file_path = "game_save.json"
+
+# Спрашиваем выбор перед началом игры
+load_saved_game = prompt_for_choice(file_path)
 
 
 # инициализация pygame
@@ -130,6 +283,9 @@ planting_menu = None
 
 action_menu = ActionMenu(screen, font_path, item_images, farmer=farmer)
 
+file_path = "game_save.json"
+if load_saved_game:
+    load_game("save_file.json", farmer, animals_group, plants_group, action_menu)
 # Game loop
 running = True
 menu_open = False 
@@ -139,7 +295,10 @@ while running:
 
     for event in events:
         if event.type == pygame.QUIT:
+            # Сохраняем игру и выходим
+            save_game("save_file.json", farmer, animals_group, plants_group, action_menu)
             running = False
+            break
 
         # ACTION меню условие
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
@@ -188,7 +347,7 @@ while running:
 
     interaction_type, target_object = farmer.check_interaction(animals_group)
     if interaction_type == "animal" and not (animal_menu and animal_menu.visible):
-        animal_menu = AnimalMenu(screen, target_object, farmer)
+        animal_menu = AnimalMenu(screen, target_object, farmer, action_menu)
         animal_menu.visible = True
     elif interaction_type == "plant" and not (plant_menu and plant_menu.visible):
         plant_menu = PlantMenu(screen, target_object, farmer, action_menu)

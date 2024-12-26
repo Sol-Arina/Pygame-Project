@@ -223,7 +223,7 @@ class Chicken(Animal):
         self.voice = AnimalSound(self, {
             'squeak': 'chickens.wav',
             'hungry': 'hungry_chickens.wav',
-            'fed': 'cow_bells.wav',
+            'fed': 'egg.mp3',
             'egg': 'chicken_egg.mp3',
             'harvest': 'harvest.mp3' # для дропа
         })
