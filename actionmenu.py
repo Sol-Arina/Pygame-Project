@@ -248,7 +248,7 @@ class ActionMenu:
 
         for item in self.shop_items:
             name, price, quantity = item['name'], item['price'], item['quantity']
-            self.shop_menu.add.label(f'{name}: {quantity} x ${price}')
+            self.shop_menu.add.label(f'{name}: {quantity} x ${price}').set_alignment(pygame_menu.locals.ALIGN_LEFT)
             self.shop_menu.add.button('+', lambda item=item: self.increase_quantity(item))
             self.shop_menu.add.button('-', lambda item=item: self.decrease_quantity(item))
 
@@ -258,12 +258,12 @@ class ActionMenu:
             # Получение количества из инвентаря
             quantity = self.farmer.inventory.harvest.get(name.lower(), 0) + self.farmer.inventory.products.get(name.lower(), 0)
             item['quantity'] = quantity  # Обновляем количество для продажи
-            self.shop_menu.add.label(f'{name}: {item["quantity"]} x ${price}')
+            self.shop_menu.add.label(f'{name}: {item["quantity"]} x ${price}').set_alignment(pygame_menu.locals.ALIGN_LEFT)
             self.shop_menu.add.button('+', lambda item=item: self.increase_quantity(item))
             self.shop_menu.add.button('-', lambda item=item: self.decrease_quantity(item))
 
-        self.shop_menu.add.label(f'Total: ${self.total_cost}')
-        self.shop_menu.add.label(f'Money: ${self.farmer.money}')
-        self.shop_menu.add.button('Buy', self.handle_buy)
-        self.shop_menu.add.button('Sell', self.handle_sell)
+        self.shop_menu.add.label(f'Total: ${self.total_cost}').set_alignment(pygame_menu.locals.ALIGN_RIGHT)
+        self.shop_menu.add.label(f'Money: ${self.farmer.money}').set_alignment(pygame_menu.locals.ALIGN_LEFT)
+        self.shop_menu.add.button('Buy', self.handle_buy).set_alignment(pygame_menu.locals.ALIGN_RIGHT)
+        self.shop_menu.add.button('Sell', self.handle_sell).set_alignment(pygame_menu.locals.ALIGN_RIGHT)
         self.shop_menu.add.button('Back', self.switch_to_main)

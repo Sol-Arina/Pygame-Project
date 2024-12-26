@@ -78,7 +78,7 @@ class Plant(pygame.sprite.Sprite):
         '''полито + 1, если 3 полива -> урожай'''
         self.wateredtimes += 1
         print('полили растение')
-        if self.wateredtimes == 3:
+        if self.wateredtimes == 3 and self.current_stage == len(self.growth_stages) - 1:
             print('------- растение полито 3 раза -------') # отладка
             self.readytoharvest = True
             print('----------собирайте урожай-------') # отладка 
