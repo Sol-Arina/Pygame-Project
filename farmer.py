@@ -40,6 +40,7 @@ class Farmer:
         self.plants = {}
         self.plants_group = plants_group
         self.animals_group = animals_group
+        self.money = 100
 
         
         # Флаг для звука шагов
@@ -260,9 +261,10 @@ class Farmer:
         self.voice.update_volume()
 
     def feed(self):
-        self.voice.play('okay')
+        self.money -= 1
 
     def water(self):
+        self.money -= 1
         self.voice.play('watering')
     
     def get_product(self, animal):
@@ -382,11 +384,12 @@ class AnimalMenu(InteractionMenu):
 
 
 class PlantMenu(InteractionMenu):
-    def __init__(self, screen, plant, farmer):
+    def __init__(self, screen, plant, farmer, action_menu):
         super().__init__(screen)
         #self.options = ['water', 'close']
         self.farmer = farmer
         self.plant = plant
+        self.action_menu = action_menu
 
         if self.plant.readytoharvest:
             self.options = ['water', 'get harvest', 'close']
@@ -395,7 +398,12 @@ class PlantMenu(InteractionMenu):
 
     def water(self):
         """Поливаем растение"""
-        self.farmer.water()
+        if self.farmer.money >= 1:
+            self.farmer.water()
+            self.plant.iswatered()
+            self.action_menu.update_shop_menu()
+        else:
+            self.farmer.voice.play('no')
         # self.plant.eat()  # Добавьте действия для животного, если нужно
         #self.farmer.is_interacting = False
 
