@@ -20,8 +20,8 @@ class ActionMenu:
         self.screen = screen
         self.font = font_path  # нащ шрифт
         self.farmer = farmer
-        self.money_display = farmer.money
-        #self.money = self.farmer.money  # деньги игрока
+        self.farmer.money_display = farmer.money
+        #self.farmer.money = self.farmer.money  # деньги игрока
         self.message = ''
         self.menu_open = False  #  контроль состояния меню
         self.total_cost = 0
@@ -84,7 +84,7 @@ class ActionMenu:
         menu.add.button('Inventory', self.switch_to_inventory).set_alignment(pygame_menu.locals.ALIGN_LEFT).set_margin(20, 60)
         
         # Отображение денег игрока ПЕРЕНЕСЕНО ВО ВКЛАДКУ МАГАЗИН
-        #menu.add.label(f"Money: ${self.money}").set_alignment(pygame_menu.locals.ALIGN_LEFT).set_margin(20, 60)
+        #menu.add.label(f"Money: ${self.farmer.money}").set_alignment(pygame_menu.locals.ALIGN_LEFT).set_margin(20, 60)
         return menu
  
     def create_shop_menu(self):
@@ -198,16 +198,32 @@ class ActionMenu:
     def handle_sell(self):
         '''Обработка продажи'''
         for item in self.sell_items:  # это раздел you can sell
-            inv_quantity = self.farmer.inventory.get_quantity(item['name'].lower())
-            if inv_quantity >= item['quantity'] > 0:
+            # обработка для товаров из harvest
+            inv_item_quantity = self.farmer.inventory.harvest.get(item['name'].lower(), 0)
+            if inv_item_quantity >= item['quantity'] > 0:
+                # выводим сообщение о продаже
                 total_price = item['price'] * item['quantity']
                 print(f"Продажа {item['quantity']} {item['name']} за {total_price}$. Денег стало: {self.farmer.money + total_price}$")
-
+                # увеличиваем деньги игрока
                 self.farmer.money += total_price
-                self.farmer.inventory.remove_item(item['name'].lower(), item['quantity'])
-            elif inv_quantity > 0:
-                print(f"Недостаточно товара {item['name']} для продажи. В наличии: {inv_quantity}, требуется: {item['quantity']}")
+                # уменьшаем количество проданного товара в инвентаре
+                self.farmer.inventory.harvest[item['name'].lower()] -= item['quantity']
+            elif inv_item_quantity > 0:
+                # нет достаточного количества товара для продажи из harvest
+                print(f"Недостаточно товара {item['name']} для продажи из урожая. В наличии: {inv_item_quantity}, требуется: {item['quantity']}")
 
+            # обработка для товаров из products
+            inv_product_quantity = self.farmer.inventory.products.get(item['name'].lower(), 0)
+            if inv_product_quantity >= item['quantity'] > 0:
+                total_price = item['price'] * item['quantity']
+                print(f"Продажа {item['quantity']} {item['name']} за {total_price}$. Денег стало: {self.farmer.money + total_price}$")
+                self.farmer.money += total_price
+                self.farmer.inventory.products[item['name'].lower()] -= item['quantity']
+            elif inv_product_quantity > 0:
+                # нет товара для продажи из продуктов
+                print(f"Недостаточно товара {item['name']} для продажи из продуктов. В наличии: {inv_product_quantity}, требуется: {item['quantity']}")
+
+            # обнуление товара после обработки
             item['quantity'] = 0
 
         self.total_cost = 0
@@ -271,4 +287,4 @@ class ActionMenu:
 
     def update_money_display(self):
         """После запуска сохраненной игры отображается оставшееся кол-во денег"""
-        self.money_display = self.farmer.money
+        self.farmer.money_display = self.farmer.money
