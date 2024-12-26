@@ -191,7 +191,7 @@ while running:
         animal_menu = AnimalMenu(screen, target_object, farmer)
         animal_menu.visible = True
     elif interaction_type == "plant" and not (plant_menu and plant_menu.visible):
-        plant_menu = PlantMenu(screen, target_object, farmer)
+        plant_menu = PlantMenu(screen, target_object, farmer, action_menu)
         plant_menu.visible = True
 
     #plants_group.update()
@@ -214,6 +214,7 @@ while running:
 
         for plant in plants_group:
             screen.blit(plant.get_image(), (plant.rect.x, plant.rect.y))
+            plant.draw_status(screen)
 
         for animal in animals_group:
             animal.draw_status(screen)

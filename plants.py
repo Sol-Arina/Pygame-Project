@@ -33,6 +33,10 @@ class Inventory:
             self.harvest[crop] += quantity
         else:
             self.harvest[crop] = quantity
+   
+    def get_quantity(self, item_name):
+        """Возвращает общее количество товара."""
+        return self.harvest.get(item_name, 0) + self.products.get(item_name, 0)
 
 class Plant(pygame.sprite.Sprite): 
     '''Класс растений: пшеница, помидоры, яблоки, клубника'''
@@ -102,3 +106,17 @@ class Plant(pygame.sprite.Sprite):
         if self.readytoharvest and self.drop:
             drop_rect = self.drop.get_rect(topleft=(self.rect.x + 20, self.rect.y + 20))  # дроп рисуем рядом с растением
             self.screen.blit(self.drop, drop_rect.topleft)
+
+    def draw_status(self, screen): #ДОБАВКА
+        """Отображает статус (например, готовность молока или яйца) над животным."""
+        font = pygame.font.Font('assets/fonts/pixelFont-7-8x14-sproutLands.ttf', 27)
+        if self.readytoharvest:
+            text = "Harvest"
+        else:
+            text = None
+
+
+        text_surface = font.render(text, True, (255, 255, 255))
+        text_rect = text_surface.get_rect(center=(self.rect.centerx, self.rect.top - 10))
+        screen.blit(text_surface, text_rect)
+
