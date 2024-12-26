@@ -20,6 +20,7 @@ class ActionMenu:
         self.screen = screen
         self.font = font_path  # нащ шрифт
         self.farmer = farmer
+        self.money_display = farmer.money
         #self.money = self.farmer.money  # деньги игрока
         self.message = ''
         self.menu_open = False  #  контроль состояния меню
@@ -267,3 +268,7 @@ class ActionMenu:
         self.shop_menu.add.button('Buy', self.handle_buy).set_alignment(pygame_menu.locals.ALIGN_RIGHT)
         self.shop_menu.add.button('Sell', self.handle_sell).set_alignment(pygame_menu.locals.ALIGN_RIGHT)
         self.shop_menu.add.button('Back', self.switch_to_main)
+
+    def update_money_display(self):
+        """После запуска сохраненной игры отображается оставшееся кол-во денег"""
+        self.money_display = self.farmer.money
