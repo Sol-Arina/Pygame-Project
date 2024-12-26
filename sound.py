@@ -6,9 +6,7 @@ class BaseSound:
 
     @classmethod
     def set_global_volume(cls, volume):
-        """
-        Устанавливает глобальную громкость для всех звуков.
-        """
+        """устанавливает глобальную громкость для всех звуков"""
         if 0.0 <= volume <= 1.0:
             cls.global_volume = volume
             print(f"Глобальная громкость установлена: {volume}")
@@ -17,16 +15,12 @@ class BaseSound:
 
     @classmethod
     def get_global_volume(cls):
-        """
-        Возвращает текущую глобальную громкость.
-        """
+        """возвращает текущую глобальную громкость"""
         return cls.global_volume
 
     @classmethod
     def adjust_volume(cls, event):
-        """
-        Изменение громкости музыки клавишами: Ctrl + Up / Ctrl + Down.
-        """
+        """изменение громкости музыки клавишами: Ctrl + Up / Ctrl + Down"""
         if event.type == pygame.KEYDOWN:
             keys = pygame.key.get_pressed()
             if keys[pygame.K_LCTRL] or keys[pygame.K_RCTRL]:  # Проверяем, нажата ли Ctrl
@@ -48,18 +42,14 @@ class BackgroundSound(BaseSound):
         pygame.mixer.music.play(-1)  # Проигрывание музыки в цикле
 
     def update_volume(self):
-        """
-        Обновляет громкость в соответствии с глобальной громкостью.
-        """
+        """обновление громкости в соответствии с глобальной"""
         pygame.mixer.music.set_volume(BaseSound.global_volume - 0.3)
 
 
 class AnimalSound(BaseSound):
     def __init__(self, animal, sound_files):
         """
-        :param animal: тип животного ('cow', 'chicken' и т.д.)
-        :param sound_files: словарь, где ключ — тип звука, значение — путь к файлу.
-        Пример:
+        sound_files: словарь "тип звука": "путь к файлу"
         {
             'moo': 'moo.wav',
             'hungry': 'cow_hungry.wav',
@@ -79,7 +69,7 @@ class AnimalSound(BaseSound):
             self.sounds[sound_type].play()
 
     def update_volume(self):
-        """Обновляет громкость звуков животного в соответствии с глобальной громкостью."""
+        """обновление громкости звуков животного в соответствии с глобальной громкостью"""
         if self.animal.type == 'cow':
             for sound in self.sounds.values():
                 sound.set_volume(BaseSound.global_volume)
@@ -91,13 +81,13 @@ class AnimalSound(BaseSound):
 class FarmerSound(BaseSound):
     def __init__(self):
         self.sounds = {
-            'steps': pygame.mixer.Sound('steps.wav'),
-            'no': pygame.mixer.Sound('no.mp3'), 
-            'okay': pygame.mixer.Sound('okay.mp3'), 
-            'watering' : pygame.mixer.Sound('water.wav')
+            'steps': pygame.mixer.Sound('sound/farmer/steps.wav'),
+            'no': pygame.mixer.Sound('sound/farmer/no.mp3'), 
+            'okay': pygame.mixer.Sound('sound/farmer/okay.mp3'), 
+            'watering' : pygame.mixer.Sound('sound/farmer/water.wav')
         }
         self.update_volume()
-        self.step_duration = 200  # Длительность звука шагов в миллисекундах
+        self.step_duration = 200  # Длительность звука шагов 200 мс
 
     def play(self, sound):
         if sound in self.sounds:

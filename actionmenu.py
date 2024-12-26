@@ -45,16 +45,10 @@ class ActionMenu:
             {'name': 'eggs', 'price': 3, 'quantity': 0},
             {'name': 'milk', 'price': 5, 'quantity': 0},
         ]
-        
-
         self.inventory = farmer.inventory
-      
-        #self.background = pygame_menu.baseimage.load('assets/action_menu/background.png')
-
         self.theme = pygame_menu.themes.THEME_SOLARIZED.copy()
         self.theme.title_font = pygame.font.Font(self.font, 30)
         self.theme.widget_font = pygame.font.Font(self.font, 20)
-        #self.theme.background_color = self.set_background
 
         # Создаем словарь для изображений товаров
         self.item_images = {
@@ -115,10 +109,6 @@ class ActionMenu:
         shop_menu.add.button('Sell', self.handle_sell).set_alignment(pygame_menu.locals.ALIGN_RIGHT)#.set_margin(20, 20)
         # Кнопка Назад
         shop_menu.add.button('Back', self.switch_to_main)
-        #for item in self.shop_items:
-        #    shop_menu.add.button(f"Buy {item['name']}", lambda i=item: self.handle_buy(i))
-        # Кнопка Назад
-        #shop_menu.add.button('Back', self.switch_to_main)
         return shop_menu
 
     def create_inventory_menu(self, farmer):
