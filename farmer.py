@@ -337,10 +337,11 @@ class InteractionMenu:
 
 
 class AnimalMenu(InteractionMenu):
-    def __init__(self, screen, animal, farmer):
+    def __init__(self, screen, animal, farmer, action_menu):
         super().__init__(screen)
         self.farmer = farmer
         self.animal = animal
+        self.action_menu = action_menu
         if self.animal.type == 'cow' and self.animal.milk_ready:
             self.options = ['feed', 'get milk', 'close']
         elif self.animal.type == 'chicken' and self.animal.egg_ready:
@@ -352,7 +353,12 @@ class AnimalMenu(InteractionMenu):
     def feed(self):
         """Кормит животное."""
         #self.farmer.feed()
-        self.animal.feed()  
+        if self.farmer.money >= 1:
+            self.farmer.feed()
+            self.animal.feed()
+            self.action_menu.update_shop_menu()
+        else:
+            self.farmer.voice.play('no')
 
     def handle_input(self, event):
         """Обрабатывает ввод для AnimalMenu."""
