@@ -1,6 +1,5 @@
 import pygame
 import pygame_menu
-from farmer import Farmer
 #import uuid
 
 pygame.init()
@@ -177,11 +176,18 @@ class ActionMenu:
                     # выводим сообщение о покупке
                     print(f"Покупка {item['quantity']} {item['name']} за {total_price}$. Денег осталось: {self.money - total_price}$")
                     # добавляем товар в инвентарь фермера
-                    self.farmer.inventory.add_item(item['name'], item['quantity'])
-                    if item == 'Cow':
-                        self.farmer.buy_animal('cow')
-                    elif item == 'Chicken':
-                        self.farmer.buy_animal('chicken')
+                    #self.farmer.inventory.add_item(item['name'], item['quantity'])
+
+                    if item['name'] == 'Cow':
+                        for _ in range(item['quantity']):
+                            self.farmer.buy_animal('Cow')  # buy_animal для покупки коровы и добавления в инвентарь!!!!!!!!!!!!!
+                    elif item['name'] == 'Chicken':
+                        for _ in range(item['quantity']):
+                            self.farmer.buy_animal('Chicken')  #buy_animal для покупки курицы и добавления в инвентарь!!!!!!!!!!!!!
+                    else:
+                        # добавляем остальные товары в инвентарь фермера
+                        self.farmer.inventory.add_item(item['name'], item['quantity'])
+
                     # уменьшаем деньги игрока
                     self.money -= total_price
                 else:
