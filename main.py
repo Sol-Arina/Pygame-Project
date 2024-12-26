@@ -11,7 +11,7 @@ from plants import Plant
 # from lib.core import Core
 
 def save_game(file_path, farmer, animals_group, plants_group, action_menu):
-    """Сохраняет состояние игры в файл."""
+    """сохранение состояния игры в файл"""
     game_state = {
         "farmer": {
             "position" : [farmer.pos_x, farmer.pos_y],
@@ -52,12 +52,12 @@ def save_game(file_path, farmer, animals_group, plants_group, action_menu):
         },
     }
     
-    
     with open(file_path, "w") as f:
         json.dump(game_state, f, indent=4)
 
+
 def load_game(file_path, farmer, animals_group, plants_group, action_menu):
-    """Загружает состояние игры из файла."""
+    """загрузка состояния игры из файла"""
     try:
         with open(file_path, "r") as f:
             game_state = json.load(f)
@@ -183,14 +183,14 @@ clock = pygame.time.Clock()
 #################################################################################
 
 # cоздаем объект TileMap (см. tiles.py) с основной картой и картой второго слоя 
-tile_map = TileMap(TILE_SIZE, 'ground_tiles_environment.csv', 'ground_tiles_overlay_decor_biom.csv')
+tile_map = TileMap(TILE_SIZE, 'assets/environment/ground_tiles_environment.csv', 'assets/environment/ground_tiles_overlay_decor_biom.csv')
 
 # загрузка тайлов для основного слоя
 # ID тайла с грядкой - 504  (карта = ground_tiles_environment.csv, файлы = environmentsprites.png', environmentsprites.json') 
-tile_map.add_tiles_from_image('environmentsprites.png', starting_index=0)
+tile_map.add_tiles_from_image('assets/environment/environmentsprites.png', starting_index=0)
 
 # загрузка тайлов для второго слоя, здесь деревья без урожая, цветы, камни, забор, дорожки, домик, грибы
-tile_map.add_overlay_tiles_from_image('2ndlayer.png', starting_index=0)
+tile_map.add_overlay_tiles_from_image('assets/environment/2ndlayer.png', starting_index=0)
 
 # ACTION MENU
 # загрузка изображений и шрифта
@@ -216,12 +216,12 @@ menu_icon_rect.topleft = (SCREEN_WIDTH - 60, 20)  # правый верхний 
 
 #"""        ЖИВОТНЫЕ        """
 # загрузка фреймов для анимации животных
-cow_frames_data = load_animal_frames('cow_sprite_sheet.json')
-chicken_frames_data = load_animal_frames('chicken_sprite_sheet.json')
+cow_frames_data = load_animal_frames('assets/animals/cow_sprite_sheet.json')
+chicken_frames_data = load_animal_frames('assets/animals/chicken_sprite_sheet.json')
 
 # загрузка спрайтов животных
-cow_spritesheet = Spritesheet('cow_sprite_sheet.png')
-chicken_spritesheet = Spritesheet('chicken_sprite_sheet.png')
+cow_spritesheet = Spritesheet('assets/animals/cow_sprite_sheet.png')
+chicken_spritesheet = Spritesheet('assets/animals/chicken_sprite_sheet.png')
 
 # создание группы для животных
 animals_group = pygame.sprite.Group()
@@ -245,26 +245,26 @@ chicken_frame_names = [
     'chicken_walking3.png'
 ]
 
-# создание животных
-cow = Cow(350, 200, cow_spritesheet, cow_frames_data, cow_frame_names, (32, 32), tilemap=tile_map)
-chicken = Chicken(800, 240, chicken_spritesheet, chicken_frames_data, chicken_frame_names, (16, 16), tilemap=tile_map)
+# # создание тестовых животных
+# cow = Cow(350, 200, cow_spritesheet, cow_frames_data, cow_frame_names, (32, 32), tilemap=tile_map)
+# chicken = Chicken(800, 240, chicken_spritesheet, chicken_frames_data, chicken_frame_names, (16, 16), tilemap=tile_map)
 
-# добавление животных в группу
-#animals_group.add(cow, chicken)
+# # добавление животных в группу
+# #animals_group.add(cow, chicken)
 
 ##################################################################################
 
 '''МЕНЮ ВЗАИМОДЕЙСТВИЯ С ОБЪЕКТАМИ'''
 menu = InteractionMenu(screen) #класс меню в farmer.py
 
-'''Растения тест'''
-plant_growth_stages = [
-    pygame.image.load('assets/plant stages/wheat1.png'),
-    pygame.image.load('assets/plant stages/wheat2.png'),
-    pygame.image.load('assets/plant stages/wheat3.png'),
-    pygame.image.load('assets/plant stages/wheat4.png')
-]
-test_plant = Plant(name="Test Plant", growth_stages=plant_growth_stages, growth_time=5, x=400, y=350)
+# '''Растения тест'''
+# plant_growth_stages = [
+#     pygame.image.load('assets/plant stages/wheat1.png'),
+#     pygame.image.load('assets/plant stages/wheat2.png'),
+#     pygame.image.load('assets/plant stages/wheat3.png'),
+#     pygame.image.load('assets/plant stages/wheat4.png')
+# ]
+# test_plant = Plant(name="Test Plant", growth_stages=plant_growth_stages, growth_time=5, x=400, y=350)
 
 
 plants_group = pygame.sprite.Group()
@@ -274,7 +274,7 @@ plants_group = pygame.sprite.Group()
 farmer = Farmer(screen, tile_map, plants_group, animals_group)
 
 '''Фоновая музыка'''
-bs = BackgroundSound('music.mp3') #сюда можно ввести название любого звукового файла, который хотим поставить на фон
+bs = BackgroundSound('sound/environment/music.mp3') #сюда можно ввести название любого звукового файла, который хотим поставить на фон
 bs.play()
 
 animal_menu = None

@@ -19,7 +19,7 @@ class Farmer:
     def __init__(self, screen, tilemap, plants_group, animals_group):
         self.screen = screen
         self.tilemap = tilemap
-        self.spritesheet = pygame.image.load("farmer.png").convert_alpha()
+        self.spritesheet = pygame.image.load("assets/farmer.png").convert_alpha()
         self.pos_x, self.pos_y = 560, 360
         self.direction = self.DOWN
         self.animation_index = 0
@@ -41,19 +41,10 @@ class Farmer:
         self.plants_group = plants_group
         self.animals_group = animals_group
         self.money = 100
-
-        
-        # Флаг для звука шагов
-        self.playing_step_sound = False
-
-        # Время для одного шага
-        self.step_duration = 200  # длительность одного шага в миллисекундах (например 200 мс)
-
-        # Время начала проигрывания звука
-        self.step_sound_start_time = None
-        
+        self.playing_step_sound = False # Флаг для звука шагов
+        self.step_duration = 200  # длительность одного шага 200 мс
+        self.step_sound_start_time = None # Время начала проигрывания звука
         self.is_interacting = False 
-
 
     def next_frame(self):
         row = self.direction
@@ -73,7 +64,7 @@ class Farmer:
             self.next_frame()
 
     def move(self, direction):
-        """Двигает фермера в заданном направлении, если тайл проходим."""
+        """фермер двигается в заданном направлении, если тайл проходим"""
 
         # Сохраняем текущую позицию для проверки
         new_x, new_y = self.pos_x, self.pos_y
@@ -104,21 +95,17 @@ class Farmer:
                 # Если тайл проходим, обновляем позицию
                 self.pos_x, self.pos_y = new_x, new_y
                 self.screen_rect.topleft = (self.pos_x, self.pos_y)  # Обновляем экранный прямоугольник
-
                 self.is_interacting = False
-                
                 # Если звук шагов не проигрывается, воспроизводим его
                 if not self.playing_step_sound:
                     self.voice.play('steps')  # Проигрываем звук шагов
                     self.playing_step_sound = True  # Устанавливаем флаг
                     self.step_sound_start_time = pygame.time.get_ticks()  # Записываем время начала звука
-
             else:
                 # Если не можем сделать шаг, играем звук "no"
                 if self.playing_step_sound:
                     self.voice.play('no')  # Проигрываем звук "no"
                     self.playing_step_sound = False  # Сбрасываем флаг
-            
             
             if self.tilemap.canifarmhere(tile_x_next, tile_y_next):
                 if (tile_x_next, tile_y_next) not in self.plants:
@@ -130,8 +117,6 @@ class Farmer:
             else:
                 self.selected_tile = None
                 self.current_tile_coords = None
-
-
         else:
             # Если выходим за пределы карты
             if not self.playing_step_sound:
@@ -142,7 +127,6 @@ class Farmer:
         self.screen.blit(self.spritesheet, self.screen_rect, self.frame_rect)
         if self.selected_tile:
             pygame.draw.rect(self.screen, self.selection_color, (*self.selected_tile, self.tilemap.tile_size, self.tilemap.tile_size), 2)
-
 
     def update(self):
         self.update_animation()
@@ -177,7 +161,7 @@ class Farmer:
         self.planting_menu.visible = True
 
     def check_interaction(self, animals_group):
-        """Проверяет взаимодействие с животными или растениями."""
+        """проверка взаимодействия с животными/растениями"""
         if self.is_interacting:  # Если уже было взаимодействие, не повторяем
            return None, None
     
@@ -208,8 +192,8 @@ class Farmer:
         print(f'attempting create a {animal_name} after buying and add it to inventory,') # debug
         #if animal_name in self.inventory.items and self.inventory.items[animal_name] > 0:
         if animal_name == 'Cow':
-            cow_spritesheet = Spritesheet('cow_sprite_sheet.png')
-            cow_frames_data = load_animal_frames('cow_sprite_sheet.json')
+            cow_spritesheet = Spritesheet('assets/animals/cow_sprite_sheet.png')
+            cow_frames_data = load_animal_frames('assets/animals/cow_sprite_sheet.json')
             cow_frame_names = [
                 'cow_eye_closed.png',
                 'cow_static.png',
@@ -226,8 +210,8 @@ class Farmer:
             return new_cow
 
         elif animal_name == 'Chicken':
-                chicken_spritesheet = Spritesheet('chicken_sprite_sheet.png')
-                chicken_frames_data = load_animal_frames('chicken_sprite_sheet.json')
+                chicken_spritesheet = Spritesheet('assets/animals/chicken_sprite_sheet.png')
+                chicken_frames_data = load_animal_frames('assets/animals/chicken_sprite_sheet.json')
                 chicken_frame_names = [
                     'chicken_eyes_closed.png',
                     'chicken_static.png',
@@ -299,9 +283,8 @@ class InteractionMenu:
         self.font = pygame.font.Font('assets/fonts/pixelFont-7-8x14-sproutLands.ttf', 20)
         self.visible = False  # Видимость меню
         
-
     def draw(self):
-        """Отрисовка меню на экране."""
+        """отрисовка меню"""
         if not self.visible:
             return
 
@@ -318,7 +301,7 @@ class InteractionMenu:
             self.screen.blit(text_surface, (menu_x + 20, menu_y + 10 + i * 30))
 
     def handle_input(self, event):
-        """Обработка ввода для управления меню."""
+        """обработка ввода для управления меню"""
         if not self.visible:
             return None
 
@@ -352,7 +335,6 @@ class AnimalMenu(InteractionMenu):
 
     def feed(self):
         """Кормит животное."""
-        #self.farmer.feed()
         if self.farmer.money >= 1:
             self.farmer.feed()
             self.animal.feed()
@@ -361,7 +343,7 @@ class AnimalMenu(InteractionMenu):
             self.farmer.voice.play('no')
 
     def handle_input(self, event):
-        """Обрабатывает ввод для AnimalMenu."""
+        """обработка ввода для AnimalMenu"""
         selected_action = super().handle_input(event)
         if selected_action:
             if selected_action == 'feed':
@@ -374,12 +356,6 @@ class AnimalMenu(InteractionMenu):
                 self.farmer.get_product(self.animal)
             elif selected_action == 'close':
                 self.visible = False
-            #elif selected_action == 'buy an animal':
-            #    if self.animal.type == 'cow':
-            #        animal = self.farmer.buy_animal('cow')
-            #    elif self.animal.type == 'chicken':
-            #animal = self.farmer.buy_animal('chicken')
-                # return animal
             self.visible = False
             return selected_action
         return None
@@ -392,7 +368,6 @@ class AnimalMenu(InteractionMenu):
 class PlantMenu(InteractionMenu):
     def __init__(self, screen, plant, farmer, action_menu):
         super().__init__(screen)
-        #self.options = ['water', 'close']
         self.farmer = farmer
         self.plant = plant
         self.action_menu = action_menu
@@ -410,8 +385,6 @@ class PlantMenu(InteractionMenu):
             self.action_menu.update_shop_menu()
         else:
             self.farmer.voice.play('no')
-        # self.plant.eat()  # Добавьте действия для животного, если нужно
-        #self.farmer.is_interacting = False
 
     def handle_input(self, event):
         """Обрабатывает ввод для PlantMenu."""
@@ -437,7 +410,6 @@ class PlantingMenu(InteractionMenu):
             f"{seed} ({count})" 
             for seed, count in islice(self.farmer.inventory.items.items(), 4)  # первые 4 пары ('ключ': значение), потому что дальше звери
             if count > 0]
-        #self.options = [f"{seed} ({count})" for seed, count in self.farmer.inventory.items.items() if count > 0]
 
     def handle_input(self, event):
         selected_action = super().handle_input(event)
