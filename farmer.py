@@ -1,5 +1,6 @@
 import pygame
 import random
+from itertools import islice
 import json
 from sound import FarmerSound, BaseSound
 from plants import Inventory, Plant
@@ -203,25 +204,27 @@ class Farmer:
             return plant
         
     def buy_animal(self, animal_name):
-        if animal_name in self.inventory.items and self.inventory.items[animal_name] > 0:
-            if animal_name == 'cow':
-                cow_spritesheet = Spritesheet('cow_sprite_sheet.png')
-                cow_frames_data = load_animal_frames('cow_sprite_sheet.json')
-                cow_frame_names = [
-                    'cow_eye_closed.png',
-                    'cow_static.png',
-                    'cow_tail_up.png',
-                    'cow_walking.png',
-                    'cow_walking1.png'
-                    ]
-                x, y = random.randint(320, 545), random.randint(80, 256)
-                new_cow = Cow(x, y, cow_spritesheet, cow_frames_data, cow_frame_names, (32, 32), tilemap=self.tile_map)
-                self.animals_group.add(new_cow)
-                print(f"Корова добавлена: {new_cow}")
-                self.inventory.add_item(animal_name, 1)
-                return new_cow
+        print(f'attempting create a {animal_name} after buying and add it to inventory,') # debug
+        #if animal_name in self.inventory.items and self.inventory.items[animal_name] > 0:
+        if animal_name == 'Cow':
+            cow_spritesheet = Spritesheet('cow_sprite_sheet.png')
+            cow_frames_data = load_animal_frames('cow_sprite_sheet.json')
+            cow_frame_names = [
+                'cow_eye_closed.png',
+                'cow_static.png',
+                'cow_tail_up.png',
+                'cow_walking.png',
+                'cow_walking1.png'
+                ]
+            x, y = random.randint(320, 545), random.randint(80, 256)
+            new_cow = Cow(x, y, cow_spritesheet, cow_frames_data, cow_frame_names, (32, 32), self.tilemap)
+            print('Created a Cow') # debug
+            self.animals_group.add(new_cow)
+            print(f'Корова добавлена: {new_cow}')
+            self.inventory.add_item(animal_name, 1)
+            return new_cow
 
-            elif animal_name == 'chicken':
+        elif animal_name == 'Chicken':
                 chicken_spritesheet = Spritesheet('chicken_sprite_sheet.png')
                 chicken_frames_data = load_animal_frames('chicken_sprite_sheet.json')
                 chicken_frame_names = [
@@ -233,9 +236,10 @@ class Farmer:
                     'chicken_walking3.png'
                     ]
                 x, y = random.randint(800, 1040), random.randint(144, 256)
-                new_chicken = Chicken(x, y, chicken_spritesheet, chicken_frames_data, chicken_frame_names, (16, 16), tilemap=self.tile_map)
+                new_chicken = Chicken(x, y, chicken_spritesheet, chicken_frames_data, chicken_frame_names, (16, 16), self.tilemap)
+                print('Created a Cow') # debug
                 self.animals_group.add(new_chicken)
-                print(f"Курица добавлена: {new_chicken}")
+                print(f'Курица добавлена: {new_chicken}')
                 self.inventory.add_item(animal_name, 1)
                 return new_chicken
             # return self.animals_group
@@ -340,7 +344,7 @@ class AnimalMenu(InteractionMenu):
         elif self.animal.type == 'chicken' and self.animal.egg_ready:
             self.options = ['feed', 'pick up an egg', 'close']
         else:
-            self.options = ['feed', 'buy an animal', 'close']
+            self.options = ['feed', 'close'] # убрала 'buy an animal'
               
 
     def feed(self):
@@ -362,11 +366,11 @@ class AnimalMenu(InteractionMenu):
                 self.farmer.get_product(self.animal)
             elif selected_action == 'close':
                 self.visible = False
-            elif selected_action == 'buy an animal':
-                if self.animal.type == 'cow':
-                    animal = self.farmer.buy_animal('cow')
-                elif self.animal.type == 'chicken':
-                    animal = self.farmer.buy_animal('chicken')
+            #elif selected_action == 'buy an animal':
+            #    if self.animal.type == 'cow':
+            #        animal = self.farmer.buy_animal('cow')
+            #    elif self.animal.type == 'chicken':
+            #animal = self.farmer.buy_animal('chicken')
                 # return animal
             self.visible = False
             return selected_action
@@ -415,7 +419,11 @@ class PlantingMenu(InteractionMenu):
     def __init__(self, screen, farmer):
         super().__init__(screen)
         self.farmer = farmer
-        self.options = [f"{seed} ({count})" for seed, count in self.farmer.inventory.items.items() if count > 0]
+        self.options = [
+            f"{seed} ({count})" 
+            for seed, count in islice(self.farmer.inventory.items.items(), 4)  # первые 4 пары ('ключ': значение), потому что дальше звери
+            if count > 0]
+        #self.options = [f"{seed} ({count})" for seed, count in self.farmer.inventory.items.items() if count > 0]
 
     def handle_input(self, event):
         selected_action = super().handle_input(event)

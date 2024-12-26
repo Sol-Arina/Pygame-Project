@@ -97,8 +97,7 @@ cow = Cow(350, 200, cow_spritesheet, cow_frames_data, cow_frame_names, (32, 32),
 chicken = Chicken(800, 240, chicken_spritesheet, chicken_frames_data, chicken_frame_names, (16, 16), tilemap=tile_map)
 
 # добавление животных в группу
-animals_group.add(cow, chicken)
-
+#animals_group.add(cow, chicken)
 
 ##################################################################################
 
@@ -116,7 +115,7 @@ test_plant = Plant(name="Test Plant", growth_stages=plant_growth_stages, growth_
 
 
 plants_group = pygame.sprite.Group()
-plants_group.add(test_plant)
+#plants_group.add(test_plant)
 
 '''ОГОРОДНИК'''
 farmer = Farmer(screen, tile_map, plants_group, animals_group)
@@ -176,8 +175,6 @@ while running:
                 planting_menu = None
 
 
-        
-
     if not (animal_menu and animal_menu.visible) \
         and not (plant_menu and plant_menu.visible) \
         and not (planting_menu and planting_menu.visible):
@@ -210,6 +207,8 @@ while running:
         farmer.draw()
         animals_group.update(dt)
         animals_group.draw(screen)
+        farmer.animals_group.update(dt)
+        farmer.animals_group.draw(screen)
         plants_group.update()
         plants_group.draw(screen)
 
