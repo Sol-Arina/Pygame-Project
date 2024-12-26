@@ -20,7 +20,7 @@ class ActionMenu:
         self.screen = screen
         self.font = font_path  # нащ шрифт
         self.farmer = farmer
-        self.farmer.money_display = farmer.money
+        self.money_display = farmer.money
         #self.farmer.money = self.farmer.money  # деньги игрока
         self.message = ''
         self.menu_open = False  #  контроль состояния меню
@@ -287,4 +287,4 @@ class ActionMenu:
 
     def update_money_display(self):
         """После запуска сохраненной игры отображается оставшееся кол-во денег"""
-        self.farmer.money_display = self.farmer.money
+        self.money_display = self.farmer.money
