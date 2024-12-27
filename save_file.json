@@ -1,17 +1,17 @@
 {
     "farmer": {
         "position": [
-            401,
-            174
+            374,
+            357
         ],
         "inventory": {
             "items": {
-                "Wheat Seeds": 4,
+                "Wheat Seeds": 5,
                 "Tomato Seeds": 5,
-                "Strawberry Seeds": 4,
+                "Strawberry Seeds": 5,
                 "Apple Seeds": 5,
-                "Chicken": 2,
-                "Cow": 2
+                "Chicken": 0,
+                "Cow": 0
             },
             "products": {
                 "milk": 0,
@@ -24,74 +24,10 @@
                 "strawberry": 0
             }
         },
-        "money": 17
+        "money": 100
     },
-    "animals": [
-        {
-            "type": "chicken",
-            "position": [
-                894.5277152562858,
-                225.97132997347938
-            ],
-            "hunger": 53.61100000000094,
-            "energy": 0.0,
-            "milk_ready": false,
-            "egg_ready": false
-        },
-        {
-            "type": "chicken",
-            "position": [
-                807.8243792167517,
-                205.6093529670582
-            ],
-            "hunger": 56.48500000000111,
-            "energy": 0.0,
-            "milk_ready": false,
-            "egg_ready": false
-        },
-        {
-            "type": "cow",
-            "position": [
-                307.39954278751935,
-                134.20145422230428
-            ],
-            "hunger": 100.0,
-            "energy": 0.0,
-            "milk_ready": false,
-            "egg_ready": false
-        },
-        {
-            "type": "cow",
-            "position": [
-                401.84128295243204,
-                124.12733292588345
-            ],
-            "hunger": 100.0,
-            "energy": 0.0,
-            "milk_ready": false,
-            "egg_ready": false
-        }
-    ],
-    "plants": [
-        {
-            "name": "Wheat Seeds",
-            "position": [
-                528,
-                384
-            ],
-            "current_stage": 2,
-            "growth_time": 60
-        },
-        {
-            "name": "Strawberry Seeds",
-            "position": [
-                432,
-                384
-            ],
-            "current_stage": 2,
-            "growth_time": 60
-        }
-    ],
+    "animals": [],
+    "plants": [],
     "action_menu": {
         "shop_items": [
             {
@@ -158,6 +94,6 @@
             }
         ],
         "total_cost": 0,
-        "current_menu": "shop"
+        "current_menu": "main"
     }
 }

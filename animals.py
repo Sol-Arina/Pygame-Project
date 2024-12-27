@@ -60,7 +60,7 @@ class Animal(pygame.sprite.Sprite):
 
 
     def is_tile_walkable(self, x, y):
-        """Проверяет, можно ли двигаться на указанный тайл."""
+        """проверка, можно ли идти на текущий тайл"""
         # Проверяем границы карты
         if x < 0 or y < 0 or y >= len(self.tilemap.map_data) or x >= len(self.tilemap.map_data[0]):
             return False
@@ -92,7 +92,7 @@ class Animal(pygame.sprite.Sprite):
     
 
     def move(self):
-        """Случайное движение в пределах радиуса от исходной позиции."""
+        """случайное движение животного"""
         now = pygame.time.get_ticks()
         if now - self.last_move_time >= self.movement_time:
             self.last_move_time = now
@@ -105,12 +105,7 @@ class Animal(pygame.sprite.Sprite):
             tile_y = int(new_pos.y // self.tilemap.tile_size)
 
             if self.is_tile_walkable(tile_x, tile_y):
-                self.pos = new_pos              
-
-            # # Проверка на выход за границы экрана или слишком далекое движение
-            # screen_width, screen_height = 800, 600  # Размер экрана
-            # if 0 <= new_pos.x <= screen_width and 0 <= new_pos.y <= screen_height:
-            #     self.pos = new_pos
+                self.pos = new_pos
 
         # Обновление позиции прямоугольника
         self.rect.center = self.pos
@@ -128,7 +123,7 @@ class Animal(pygame.sprite.Sprite):
         self.animate(dt)
 
     def draw_status(self, screen): #ДОБАВКА
-        """Отображает статус (например, готовность молока или яйца) над животным."""
+        """надпись о статусе животного"""
         font = pygame.font.Font('assets/fonts/pixelFont-7-8x14-sproutLands.ttf', 24)
         if self.animal_type == 'cow' and self.milk_ready:
             text = "Milk Ready"
@@ -138,8 +133,6 @@ class Animal(pygame.sprite.Sprite):
             text = "Hungry!"
         else:
             text = None
-
-
 
         text_surface = font.render(text, True, (255, 255, 255))
         text_rect = text_surface.get_rect(center=(self.rect.centerx, self.rect.top - 10))
@@ -152,11 +145,11 @@ class Cow(Animal):
         super().__init__(x, y, 'cow', spritesheet, frames_data, frame_names, frame_size, tilemap, radius, speed)
 
         self.voice = AnimalSound(self, {
-            'moo': 'moo.wav',
-            'hungry': 'hungry_cow.wav',
-            'fed': 'cow_bells.wav',
-            'milk': 'cow_milk.wav',
-            'harvest': 'harvest.mp3' # для дропа
+            'moo': 'sound/animals/moo.wav',
+            'hungry': 'sound/animals/hungry_cow.wav',
+            'fed': 'sound/animals/cow_bells.wav',
+            'milk': 'sound/animals/cow_milk.wav',
+            'harvest': 'sound/animals/harvest.mp3' # для дропа
         })
 
         # Параметры для молока
@@ -166,7 +159,7 @@ class Cow(Animal):
         self.type = 'cow' #КАТЯ: добавила типы животных, чтобы в меню понимать, какую функцию вызывать
 
     def update_status(self):
-        """Обновление уровня голода, энергии и звуков."""
+        """обновление уровня голода, энергии и звуков"""
         super().update_status()
 
         now = pygame.time.get_ticks()
@@ -219,15 +212,15 @@ class Cow(Animal):
 class Chicken(Animal):
     def __init__(self, x, y, spritesheet, frames_data, frame_names, frame_size, tilemap=None, radius=5, speed=1):
         super().__init__(x, y, 'chicken', spritesheet, frames_data, frame_names, frame_size, tilemap, radius, speed)
+
         # Звуки курицы
         self.voice = AnimalSound(self, {
-            'squeak': 'chickens.wav',
-            'hungry': 'hungry_chickens.wav',
-            'fed': 'egg.mp3',
-            'egg': 'chicken_egg.mp3',
-            'harvest': 'harvest.mp3' # для дропа
+            'squeak': 'sound/animals/chickens.wav',
+            'hungry': 'sound/animals/hungry_chickens.wav',
+            'fed': 'sound/animals/egg.mp3',
+            'egg': 'sound/animals/chicken_egg.mp3',
+            'harvest': 'sound/animals/harvest.mp3' # для дропа
         })
-
         self.feed_count = 0
         self.egg_ready = False
         self.last_squeak_time = pygame.time.get_ticks()
@@ -246,7 +239,7 @@ class Chicken(Animal):
                     self.voice.play('hungry')
                     self.last_hungry_squeak_time = now
         else:   # если корова ок
-            if now - self.last_squeak_time > random.randint(9000, 25000):  # в интервале от 10 до 25 секунд
+            if now - self.last_squeak_time > random.randint(9000, 25000):  # в интервале от 9 до 25 секунд
                 self.voice.play('squeak')
                 self.last_squeak_time = now
 
